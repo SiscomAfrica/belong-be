@@ -32,7 +32,7 @@ RUN apt-get update && \
     libpq5 curl libpango-1.0-0 libpangocairo-1.0-0 \
     libgdk-pixbuf-2.0-0 libcairo2 libfontconfig1 && \
     rm -rf /var/lib/apt/lists/* && \
-    useradd -r -s /usr/sbin/nologin belong
+    useradd -r -m -s /usr/sbin/nologin belong
 
 COPY --from=builder /opt/venv /opt/venv
 COPY src/ /app/src/

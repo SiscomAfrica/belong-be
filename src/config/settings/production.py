@@ -21,7 +21,7 @@ LOGGING = {
     "formatters": {
         "json": {
             "()": "structlog.stdlib.ProcessorFormatter",
-            "processor": __import__("structlog").dev.JSONRenderer(),
+            "processor": __import__("structlog").processors.JSONRenderer(),
         },
     },
     "handlers": {
