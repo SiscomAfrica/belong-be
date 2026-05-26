@@ -1,0 +1,101 @@
+x-common-env: &common-env
+  DATABASE_URL: postgres://belong:belong@postgres:5432/belong
+  REDIS_URL: redis://redis:6379/0
+  CELERY_BROKER_URL: redis://redis:6379/1
+  CELERY_RESULT_BACKEND: redis://redis:6379/2
+  DJANGO_ENV: local
+  MPESA_CONSUMER_KEY: ""
+  MPESA_CONSUMER_SECRET: ""
+  MPESA_PASSKEY: ""
+  MPESA_SHORTCODE: "174379"
+  MPESA_ENV: sandbox
+  MPESA_CALLBACK_BASE_URL: "https://localhost:8000"
+  PAYSTACK_SECRET_KEY: ""
+  PAYSTACK_PUBLIC_KEY: ""
+  SMILE_IDENTITY_API_KEY: ""
+  SMILE_IDENTITY_PARTNER_ID: ""
+  SMILE_IDENTITY_ENV: sandbox
+  SMILE_IDENTITY_CALLBACK_URL: "https://localhost:8000/api/kyc/webhook"
+  LLM_PROVIDER: "claude"
+  ANTHROPIC_API_KEY: ""
+  ANTHROPIC_MODEL: "claude-sonnet-4-20250514"
+  OPENAI_API_KEY: ""
+  OPENAI_MODEL: "gpt-4o"
+
+services:
+  api:
+    build: .
+    environment:
+      <<: *common-env
+      SECRET_KEY: local-dev-secret-key-not-for-production-use-change-me
+      JWT_SIGNING_KEY: local-dev-jwt-key-not-for-production-use-change
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8001:8000"
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: belong
+      POSTGRES_USER: belong
+      POSTGRES_PASSWORD: belong
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    shm_size: "256mb"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U belong"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    command: >
+      redis-server
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  celery-worker:
+    build: .
+    command: celery -A config.celery worker -l info
+    environment:
+      <<: *common-env
+      SECRET_KEY: local-dev-secret-key-not-for-production-use-change-me
+      JWT_SIGNING_KEY: local-dev-jwt-key-not-for-production-use-change
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery-beat:
+    build: .
+    command: celery -A config.celery beat -l info
+    environment:
+      <<: *common-env
+      SECRET_KEY: local-dev-secret-key-not-for-production-use-change-me
+      JWT_SIGNING_KEY: local-dev-jwt-key-not-for-production-use-change
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:
