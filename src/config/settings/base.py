@@ -57,8 +57,7 @@ DATABASES = {
     ),
 }
 DATABASES["default"]["OPTIONS"] = {"pool": {"min_size": 2, "max_size": 4}}
-DATABASES["default"]["CONN_MAX_AGE"] = 0
-DATABASES["default"]["CONN_HEALTH_CHECKS"] = True
+DATABASES["default"].update(CONN_MAX_AGE=0, CONN_HEALTH_CHECKS=True)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE, TIME_ZONE = "en-us", "Africa/Nairobi"
@@ -98,3 +97,4 @@ from config.settings.base_logging import *  # noqa: E402, F401, F403
 from config.settings.base_payments import *  # noqa: E402, F401, F403
 from config.settings.base_kyc import *  # noqa: E402, F401, F403
 from config.settings.base_llm import *  # noqa: E402, F401, F403
+from config.settings.base_sms import *  # noqa: E402, F401, F403

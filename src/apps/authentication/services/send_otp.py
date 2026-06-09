@@ -5,10 +5,12 @@ import logging
 import secrets
 from datetime import timedelta
 
+from django.conf import settings
 from django.utils import timezone
 
 from apps.authentication.models import OTP
 from apps.authentication.selectors.count_active_otps import count_active_otps
+from apps.authentication.sms import send_sms
 from apps.common.exceptions import RateLimitError
 
 logger = logging.getLogger(__name__)
@@ -35,8 +37,12 @@ def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> 
         expires_at=timezone.now() + timedelta(minutes=OTP_EXPIRY_MINUTES),
     )
 
-    logger.info("OTP sent to %s for %s (stubbed)", phone, purpose)
-    # TODO: integrate SMS provider (Africa's Talking / Twilio)
-    logger.debug("OTP code for %s: %s", phone, raw_code)  # noqa: T20
+    if settings.DEBUG:
+        logger.debug("OTP code for %s: %s", phone, raw_code)  # noqa: T20
+
+    message = f"Your Belong verification code is {raw_code}. It expires in 5 minutes."
+    result = send_sms(phone=phone, message=message)
+    if not result.success:
+        logger.warning("SMS delivery failed for %s: %s", phone, result.status_desc)
 
     return otp
