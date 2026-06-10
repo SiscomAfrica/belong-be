@@ -27,6 +27,7 @@ feed_router = Router(tags=["feed"])
 
 @feed_router.post("/posts", response={201: FeedPostOut})
 def create(request, payload: FeedPostCreateIn):  # noqa: ANN001, ANN201
+    """Create a new social feed post, optionally linked to an investment."""
     post = create_feed_post(
         user_id=request.auth.id,
         investment_id=payload.investment_id,
@@ -39,24 +40,28 @@ def create(request, payload: FeedPostCreateIn):  # noqa: ANN001, ANN201
 
 @feed_router.get("/", response=FeedListOut)
 def list_posts(request):  # noqa: ANN001, ANN201
+    """List feed posts visible to the authenticated user."""
     qs = list_feed_posts(user_id=request.auth.id)
     return {"items": list(qs), "count": qs.count()}
 
 
 @feed_router.get("/trending", response=FeedListOut)
 def trending(request):  # noqa: ANN001, ANN201
+    """List trending feed posts ranked by engagement."""
     qs = list_trending_posts(user_id=request.auth.id)
     return {"items": list(qs), "count": qs.count()}
 
 
 @feed_router.post("/posts/{post_id}/like", response=LikeToggleOut)
 def like(request, post_id: UUID):  # noqa: ANN001, ANN201
+    """Toggle like on a feed post. Returns current liked state."""
     liked = toggle_like(post_id=post_id, user_id=request.auth.id)
     return {"liked": liked}
 
 
 @feed_router.patch("/posts/{post_id}", response=FeedPostOut)
 def update(request, post_id: UUID, payload: FeedPostUpdateIn):  # noqa: ANN001, ANN201
+    """Update comment or visibility of an existing feed post."""
     return update_feed_post(
         post_id=post_id,
         user_id=request.auth.id,
@@ -67,5 +72,6 @@ def update(request, post_id: UUID, payload: FeedPostUpdateIn):  # noqa: ANN001, 
 
 @feed_router.delete("/posts/{post_id}", response={204: None})
 def delete(request, post_id: UUID):  # noqa: ANN001, ANN201
+    """Delete a feed post owned by the authenticated user."""
     delete_feed_post(post_id=post_id, user_id=request.auth.id)
     return 204, None

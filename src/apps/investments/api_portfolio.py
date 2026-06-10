@@ -20,19 +20,23 @@ portfolio_router = Router(tags=["portfolio"])
 
 @portfolio_router.get("/", response=PortfolioSummaryOut)
 def summary(request):  # noqa: ANN001, ANN201
+    """Return the authenticated user's portfolio summary."""
     return get_portfolio_summary(user_id=request.auth.id)
 
 
 @portfolio_router.get("/holdings", response=list[HoldingOut])
 def holdings(request):  # noqa: ANN001, ANN201
+    """List all fund holdings in the user's portfolio."""
     return list_user_holdings(user_id=request.auth.id)
 
 
 @portfolio_router.get("/holdings/{fund_id}", response=HoldingDetailOut)
 def holding_detail(request, fund_id: UUID):  # noqa: ANN001, ANN201
+    """Return detailed holding information for a specific fund."""
     return get_holding(user_id=request.auth.id, fund_id=fund_id)
 
 
 @portfolio_router.get("/performance", response=list[PortfolioSnapshotOut])
 def performance(request, days: int = Query(30)):  # noqa: ANN001, ANN201
+    """Return daily portfolio snapshots for performance charting."""
     return list_portfolio_snapshots(user_id=request.auth.id, days=days)

@@ -8,6 +8,6 @@ from pydantic import Field
 
 
 class InvestmentCreateIn(Schema):
-    fund_id: UUID
-    amount: Decimal = Field(gt=0)
-    idempotency_key: str = Field(min_length=8, max_length=64)
+    fund_id: UUID = Field(description="Target fund UUID")
+    amount: Decimal = Field(gt=0, description="Investment amount in KES (must be > 0)")
+    idempotency_key: str = Field(min_length=8, max_length=64, description="Client-generated unique key to prevent duplicate investments")

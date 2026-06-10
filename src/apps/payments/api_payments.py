@@ -19,6 +19,7 @@ payments_router = Router(tags=["payments"])
 
 @payments_router.post("/initiate/", response={201: PaymentInitiateOut})
 def initiate(request, payload: PaymentInitiateIn):
+    """Initiate a payment for an investment via M-Pesa or Paystack."""
     txn = initiate_payment(
         user_id=request.auth.id,
         investment_id=payload.investment_id,
@@ -35,6 +36,7 @@ def list_payments(
     status: str | None = Query(None),
     provider: str | None = Query(None),
 ):
+    """List the authenticated user's payment transactions."""
     qs = list_user_payments(
         user_id=request.auth.id, status=status, provider=provider,
     )
@@ -43,6 +45,7 @@ def list_payments(
 
 @payments_router.get("/{transaction_id}", response=PaymentTransactionOut)
 def detail(request, transaction_id: UUID):
+    """Return details for a single payment transaction."""
     return get_payment_transaction(
         transaction_id=transaction_id, user_id=request.auth.id,
     )

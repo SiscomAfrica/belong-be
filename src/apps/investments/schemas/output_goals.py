@@ -5,22 +5,23 @@ from decimal import Decimal
 from uuid import UUID
 
 from ninja import Schema
+from pydantic import Field
 
 
 class GoalFundOut(Schema):
-    id: UUID
-    name: str
-    slug: str
+    id: UUID = Field(description="Fund identifier")
+    name: str = Field(description="Fund display name")
+    slug: str = Field(description="URL-safe fund slug")
 
 
 class InvestmentGoalOut(Schema):
-    id: UUID
-    fund: GoalFundOut
-    target_amount: Decimal
-    current_value: Decimal
-    target_date: date
-    progress_pct: Decimal
-    created_at: datetime
+    id: UUID = Field(description="Goal identifier")
+    fund: GoalFundOut = Field(description="Associated fund summary")
+    target_amount: Decimal = Field(description="Goal target amount in KES")
+    current_value: Decimal = Field(description="Current invested value toward this goal")
+    target_date: date = Field(description="Target completion date")
+    progress_pct: Decimal = Field(description="Progress toward goal as a percentage")
+    created_at: datetime = Field(description="Goal creation timestamp")
 
     @staticmethod
     def resolve_fund(obj) -> dict:  # noqa: ANN001
@@ -39,5 +40,5 @@ class InvestmentGoalOut(Schema):
 
 
 class GoalListOut(Schema):
-    items: list[InvestmentGoalOut]
-    count: int
+    items: list[InvestmentGoalOut] = Field(description="List of investment goals")
+    count: int = Field(description="Total number of goals")

@@ -14,6 +14,7 @@ callbacks_router = Router(tags=["callbacks"], auth=None)
 
 @callbacks_router.post("/mpesa/", response=WebhookAckOut, auth=None)
 def mpesa_callback(request: HttpRequest):
+    """Receive and process M-Pesa payment result callbacks."""
     payload = json.loads(request.body)
     process_mpesa_callback(payload=payload)
     return WebhookAckOut(result_code=0, result_desc="Accepted")
@@ -21,6 +22,7 @@ def mpesa_callback(request: HttpRequest):
 
 @callbacks_router.post("/paystack/", response={200: dict}, auth=None)
 def paystack_webhook(request: HttpRequest):
+    """Receive and process Paystack webhook events."""
     signature = request.headers.get("x-paystack-signature", "")
     body = request.body
     payload = json.loads(body)

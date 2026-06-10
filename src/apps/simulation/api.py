@@ -10,6 +10,7 @@ simulation_router = Router(tags=["simulation"])
 
 @simulation_router.post("/calculate", response=SimulationOut, auth=None)
 def calculate(request, payload: SimulationIn):  # noqa: ANN001, ANN201
+    """Run an investment simulation with custom parameters."""
     return calculate_simulation(
         goal=payload.goal,
         contribution=payload.contribution,

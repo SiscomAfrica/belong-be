@@ -30,6 +30,7 @@ def list_all_funds(  # noqa: ANN001, ANN201
     risk_level: int | None = Query(None),
     search: str | None = Query(None),
 ):
+    """List all active funds with optional type, category, risk, and search filters."""
     qs = list_funds(
         fund_type=fund_type,
         category=category,
@@ -41,16 +42,19 @@ def list_all_funds(  # noqa: ANN001, ANN201
 
 @funds_router.get("/trending", response=list[FundOut], auth=None)
 def trending(request):  # noqa: ANN001, ANN201
+    """Return the list of currently trending funds."""
     return list_trending_funds()
 
 
 @funds_router.get("/curated", response=list[FundOut])
 def curated(request):  # noqa: ANN001, ANN201
+    """Return funds curated for the user's investor type."""
     return list_curated_funds(investor_type=request.auth.investor_type)
 
 
 @funds_router.post("/projection", response=ProjectionOut, auth=None)
 def projection(request, payload: ProjectionIn):  # noqa: ANN001, ANN201
+    """Calculate a hypothetical investment growth projection."""
     return calculate_projection(
         goal=payload.goal,
         contribution=payload.contribution,
@@ -62,9 +66,11 @@ def projection(request, payload: ProjectionIn):  # noqa: ANN001, ANN201
 
 @funds_router.get("/{fund_id}", response=FundDetailOut, auth=None)
 def fund_detail(request, fund_id: UUID):  # noqa: ANN001, ANN201
+    """Return detailed information for a single fund."""
     return get_fund(fund_id=fund_id)
 
 
 @funds_router.get("/{fund_id}/nav", response=list[FundNAVOut], auth=None)
 def fund_nav(request, fund_id: UUID, days: int = Query(30)):  # noqa: ANN001, ANN201
+    """Return historical NAV data for a fund over the specified day range."""
     return list_fund_nav(fund_id=fund_id, days=days)

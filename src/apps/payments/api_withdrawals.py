@@ -15,6 +15,7 @@ withdrawals_router = Router(tags=["withdrawals"])
 
 @withdrawals_router.post("/", response={201: WithdrawalOut})
 def create(request, payload: WithdrawalCreateIn):
+    """Create a withdrawal request to send funds to M-Pesa."""
     withdrawal = create_withdrawal_request(
         user_id=request.auth.id,
         amount=payload.amount,
@@ -28,5 +29,6 @@ def list_withdrawals(
     request,
     status: str | None = Query(None),
 ):
+    """List the authenticated user's withdrawal requests."""
     qs = list_withdrawal_requests(user_id=request.auth.id, status=status)
     return {"items": list(qs), "count": qs.count()}

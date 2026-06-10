@@ -16,6 +16,7 @@ goals_router = Router(tags=["investment-goals"])
 
 @goals_router.post("/", response={201: InvestmentGoalOut})
 def create_goal(request, payload: GoalCreateIn):  # noqa: ANN001, ANN201
+    """Create a new investment goal targeting a specific fund."""
     goal = create_investment_goal(
         user_id=request.auth.id,
         fund_id=payload.fund_id,
@@ -27,17 +28,20 @@ def create_goal(request, payload: GoalCreateIn):  # noqa: ANN001, ANN201
 
 @goals_router.get("/", response=GoalListOut)
 def list_goals(request):  # noqa: ANN001, ANN201
+    """List all investment goals for the authenticated user."""
     qs = list_user_goals(user_id=request.auth.id)
     return GoalListOut(items=list(qs), count=qs.count())
 
 
 @goals_router.get("/{goal_id}", response=InvestmentGoalOut)
 def get_goal(request, goal_id: UUID):  # noqa: ANN001, ANN201
+    """Return details and progress for a single investment goal."""
     return get_investment_goal(goal_id=goal_id, user_id=request.auth.id)
 
 
 @goals_router.patch("/{goal_id}", response=InvestmentGoalOut)
 def update_goal(request, goal_id: UUID, payload: GoalUpdateIn):  # noqa: ANN001, ANN201
+    """Update target amount or date for an investment goal."""
     return update_investment_goal(
         goal_id=goal_id,
         user_id=request.auth.id,

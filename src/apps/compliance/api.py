@@ -23,6 +23,7 @@ compliance_router = Router(tags=["compliance"])
 
 @compliance_router.get("/limits", response=InvestmentLimitOut)
 def get_limits(request):
+    """Return investment limits based on the user's KYC tier."""
     from apps.compliance.selectors.get_investment_limits import get_investment_limits
 
     tier = get_user_tier(user_id=request.auth.id)
@@ -34,6 +35,7 @@ def get_limits(request):
 
 @compliance_router.get("/consent/latest", response=list[ConsentVersionOut])
 def get_latest_consents(request):
+    """Return the latest consent document versions for terms and privacy."""
     results = []
     for doc_type in DocumentType:
         version = get_latest_consent(document_type=doc_type.value)
@@ -44,12 +46,14 @@ def get_latest_consents(request):
 
 @compliance_router.get("/consent/status", response=ConsentStatusOut)
 def get_consent_status(request):
+    """Check whether the user has accepted the latest consent documents."""
     status = check_consent_current(user_id=request.auth.id)
     return ConsentStatusOut(**status)
 
 
 @compliance_router.post("/consent", response={201: UserConsentOut})
 def accept_consent(request, payload: RecordConsentIn):
+    """Record user acceptance of a consent document version."""
     ip = request.META.get("REMOTE_ADDR")
     consent = record_consent(
         user_id=request.auth.id,
@@ -61,6 +65,7 @@ def accept_consent(request, payload: RecordConsentIn):
 
 @compliance_router.get("/statements/{year}/{month}")
 def get_statement(request, year: int, month: int):
+    """Download the user's monthly investment statement as PDF."""
     try:
         pdf_bytes = generate_statement(user_id=request.auth.id, year=year, month=month)
     except Exception:

@@ -13,6 +13,8 @@ from apps.authentication.api import auth_router
 from apps.common.api import health_router
 from apps.common.exceptions import AppError
 from apps.common.schemas import ErrorOut
+from config.api_description import API_DESCRIPTION
+from config.redoc_view import redoc_view
 from apps.compliance.api import compliance_router
 from apps.feed.api import feed_router
 from apps.funds.api import funds_router
@@ -37,6 +39,7 @@ api = NinjaAPI(
     title="Belong API",
     version="1.0.0",
     auth=JWTAuth(),
+    description=API_DESCRIPTION,
 )
 
 api.add_router("/health", health_router, tags=["health"])
@@ -81,4 +84,5 @@ api.add_router("/token", blacklist_router, tags=["token"])
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", api.urls),
+    path("api/redoc/", redoc_view),
 ]

@@ -4,23 +4,24 @@ from datetime import datetime
 from uuid import UUID
 
 from ninja import Schema
+from pydantic import Field
 
 
 class KYCDocumentOut(Schema):
-    id: UUID
-    side: str
-    file_key: str
-    uploaded_at: datetime
+    id: UUID = Field(description="Document record identifier")
+    side: str = Field(description="Document side: FRONT | BACK | SELFIE")
+    file_key: str = Field(description="S3 file key")
+    uploaded_at: datetime = Field(description="Upload timestamp")
 
 
 class KYCSubmissionOut(Schema):
-    id: UUID
-    status: str
-    document_type: str
-    smile_job_id: str
-    submitted_at: datetime | None
-    documents: list[KYCDocumentOut]
-    created_at: datetime
+    id: UUID = Field(description="KYC submission identifier")
+    status: str = Field(description="Status: PENDING | SUBMITTED | APPROVED | REJECTED")
+    document_type: str = Field(description="Document type used for verification")
+    smile_job_id: str = Field(description="Smile Identity external job ID")
+    submitted_at: datetime | None = Field(default=None, description="When documents were submitted for review")
+    documents: list[KYCDocumentOut] = Field(description="Uploaded document records")
+    created_at: datetime = Field(description="Submission creation timestamp")
 
     @staticmethod
     def resolve_documents(obj) -> list:  # noqa: ANN001
@@ -30,9 +31,9 @@ class KYCSubmissionOut(Schema):
 
 
 class KYCStatusOut(Schema):
-    status: str
-    submission_id: UUID | None
+    status: str = Field(description="Current KYC status: NONE | PENDING | APPROVED | REJECTED")
+    submission_id: UUID | None = Field(default=None, description="Active submission UUID if any")
 
 
 class KYCWebhookAckOut(Schema):
-    status: str
+    status: str = Field(description="Webhook acknowledgement status")

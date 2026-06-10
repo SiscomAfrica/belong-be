@@ -7,4 +7,4 @@ from pydantic import Field
 
 
 class PoolNavUpdateIn(Schema):
-    nav_per_unit: Decimal = Field(gt=0)
+    nav_per_unit: Decimal = Field(gt=0, description="New NAV per unit (must be > 0)")

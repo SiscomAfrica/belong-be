@@ -27,6 +27,7 @@ auth_router = Router(tags=["auth"])
 
 @auth_router.post("/register", response={201: AuthTokenOut}, auth=None)
 def register_user(request, payload: RegisterIn):
+    """Register a new user with verified phone, OTP, and PIN."""
     tokens = register(
         phone=payload.phone,
         otp_code=payload.otp_code,
@@ -38,32 +39,38 @@ def register_user(request, payload: RegisterIn):
 
 @auth_router.post("/login", response=AuthTokenOut, auth=None)
 def login_user(request, payload: LoginIn):
+    """Authenticate with phone and PIN, returns JWT tokens."""
     return login(phone=payload.phone, pin=payload.pin)
 
 
 @auth_router.post("/otp/send", response=OTPSentOut, auth=None)
 def send_otp_endpoint(request, payload: OTPSendIn):
+    """Send a one-time password to the given phone number."""
     send_otp(phone=payload.phone, purpose=payload.purpose, channel=payload.channel)
     return OTPSentOut(message="OTP sent successfully")
 
 
 @auth_router.post("/otp/verify", response={200: dict}, auth=None)
 def verify_otp_endpoint(request, payload: OTPVerifyIn):
+    """Verify the OTP code for the given phone and purpose."""
     verify_otp(phone=payload.phone, code=payload.code, purpose=payload.purpose)
     return {"verified": True}
 
 
 @auth_router.post("/pin/set", response=UserOut)
 def set_pin_endpoint(request, payload: PINSetIn):
+    """Set or update the authenticated user's 4-digit PIN."""
     return set_pin(user=request.auth, pin=payload.pin)
 
 
 @auth_router.post("/pin/verify", response={200: dict})
 def verify_pin_endpoint(request, payload: PINVerifyIn):
+    """Verify the authenticated user's PIN."""
     verify_pin(user=request.auth, pin=payload.pin)
     return {"verified": True}
 
 
 @auth_router.post("/biometrics/enable", response=UserOut)
 def enable_biometrics_endpoint(request, payload: BiometricsEnableIn):
+    """Enable or disable biometric authentication."""
     return enable_biometrics(user=request.auth, enable=payload.enable)

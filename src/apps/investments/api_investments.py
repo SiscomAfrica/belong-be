@@ -14,6 +14,7 @@ investments_router = Router(tags=["investments"])
 
 @investments_router.post("/", response={201: InvestmentOut})
 def create(request, payload: InvestmentCreateIn):  # noqa: ANN001, ANN201
+    """Create a new investment in a fund. Requires subsequent payment."""
     investment = create_investment(
         user_id=request.auth.id,
         fund_id=payload.fund_id,
@@ -29,6 +30,7 @@ def list_investments(  # noqa: ANN001, ANN201
     status: str | None = Query(None),
     fund_id: UUID | None = Query(None),
 ):
+    """List the authenticated user's investments with optional filters."""
     qs = list_user_investments(
         user_id=request.auth.id, status=status, fund_id=fund_id
     )
@@ -37,4 +39,5 @@ def list_investments(  # noqa: ANN001, ANN201
 
 @investments_router.get("/{investment_id}", response=InvestmentOut)
 def detail(request, investment_id: UUID):  # noqa: ANN001, ANN201
+    """Return details for a single investment."""
     return get_investment(investment_id=investment_id, user_id=request.auth.id)

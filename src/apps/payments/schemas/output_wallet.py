@@ -5,10 +5,11 @@ from decimal import Decimal
 from uuid import UUID
 
 from ninja import Schema
+from pydantic import Field
 
 
 class WalletOut(Schema):
-    id: UUID
-    balance_ksh: Decimal
-    balance_usd: Decimal
-    updated_at: datetime
+    id: UUID = Field(description="Wallet identifier")
+    balance_ksh: Decimal = Field(description="Wallet balance in KES")
+    balance_usd: Decimal = Field(description="Wallet balance converted to USD")
+    updated_at: datetime = Field(description="Last balance update timestamp")

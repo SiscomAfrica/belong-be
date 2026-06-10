@@ -13,6 +13,7 @@ class HealthOut(Schema):
 
 @health_router.get("/", response=HealthOut)
 def health_check(request):  # noqa: ANN001, ANN201
+    """Check API and database health. Returns 200 if healthy, 503 otherwise."""
     db_status = "ok"
     try:
         with connection.cursor() as cursor:
