@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+import datetime as dt
+
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -25,7 +27,7 @@ class FundOut(Schema):
 
 class FundNAVOut(Schema):
     id: UUID = Field(description="NAV record identifier")
-    date: date = Field(description="NAV valuation date")
+    date: dt.date = Field(description="NAV valuation date")
     nav_value: Decimal = Field(description="Net Asset Value per unit")
     daily_change_pct: Decimal = Field(description="Day-over-day NAV change percentage")
 

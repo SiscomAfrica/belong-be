@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from datetime import date
+import datetime as dt
+
 from decimal import Decimal
 
 from ninja import Schema
@@ -8,7 +9,7 @@ from pydantic import Field
 
 
 class ChartDataPoint(Schema):
-    date: date = Field(description="Data point date")
+    date: dt.date = Field(description="Data point date")
     value: Decimal = Field(description="Projected portfolio value at this date")
 
 

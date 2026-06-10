@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from datetime import date, datetime
+import datetime as dt
+
+from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -89,7 +91,7 @@ class PortfolioSummaryOut(Schema):
 
 
 class PortfolioSnapshotOut(Schema):
-    date: date = Field(description="Snapshot date")
+    date: dt.date = Field(description="Snapshot date")
     total_value: Decimal = Field(description="Portfolio value on this date")
     total_invested: Decimal = Field(description="Cumulative invested amount")
     daily_change: Decimal = Field(description="Day-over-day change in KES")
