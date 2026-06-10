@@ -30,5 +30,10 @@ class PINVerifyIn(Schema):
     pin: str
 
 
+class LoginIn(Schema):
+    phone: str
+    pin: str
+
+
 class BiometricsEnableIn(Schema):
     enable: bool = True

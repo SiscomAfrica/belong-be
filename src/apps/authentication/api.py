@@ -5,6 +5,7 @@ from ninja import Router
 from apps.authentication.schemas import (
     AuthTokenOut,
     BiometricsEnableIn,
+    LoginIn,
     OTPSendIn,
     OTPSentOut,
     OTPVerifyIn,
@@ -13,6 +14,7 @@ from apps.authentication.schemas import (
     RegisterIn,
 )
 from apps.authentication.services.enable_biometrics import enable_biometrics
+from apps.authentication.services.login import login
 from apps.authentication.services.register import register
 from apps.authentication.services.send_otp import send_otp
 from apps.authentication.services.set_pin import set_pin
@@ -32,6 +34,11 @@ def register_user(request, payload: RegisterIn):
         referred_by_code=payload.referred_by_code,
     )
     return 201, tokens
+
+
+@auth_router.post("/login", response=AuthTokenOut, auth=None)
+def login_user(request, payload: LoginIn):
+    return login(phone=payload.phone, pin=payload.pin)
 
 
 @auth_router.post("/otp/send", response=OTPSentOut, auth=None)
