@@ -4,10 +4,12 @@ from django.conf import settings
 
 from apps.ai_profiler.providers.base import LLMProvider
 from apps.ai_profiler.providers.claude import ClaudeProvider
+from apps.ai_profiler.providers.groq import GroqProvider
 from apps.ai_profiler.providers.openai import OpenAIProvider
 
 _PROVIDERS: dict[str, type[LLMProvider]] = {
     "claude": ClaudeProvider,
+    "groq": GroqProvider,
     "openai": OpenAIProvider,
 }
 
