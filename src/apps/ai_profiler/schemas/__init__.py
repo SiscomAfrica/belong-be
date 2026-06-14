@@ -6,11 +6,17 @@ from apps.ai_profiler.schemas.output import (
     SessionListOut,
     SessionOut,
 )
+from apps.ai_profiler.schemas.output_template import (
+    ProfileTemplateListOut,
+    ProfileTemplateOut,
+)
 
 __all__ = [
     "InvestorProfileOut",
     "MessageIn",
     "MessageOut",
+    "ProfileTemplateListOut",
+    "ProfileTemplateOut",
     "SessionDetailOut",
     "SessionListOut",
     "SessionOut",

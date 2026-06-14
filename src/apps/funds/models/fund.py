@@ -46,6 +46,7 @@ class Fund(BaseModel):
     projected_annual_return = models.DecimalField(max_digits=6, decimal_places=2)
     effective_annual_yield = models.DecimalField(max_digits=6, decimal_places=2)
     annualized_daily_yield = models.DecimalField(max_digits=6, decimal_places=2)
+    emoji = models.CharField(max_length=10, blank=True, default="")
     hero_image_url = models.URLField(blank=True, default="")
     is_trending = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

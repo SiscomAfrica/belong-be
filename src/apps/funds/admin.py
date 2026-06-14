@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib import admin
 
-from apps.funds.models import Fund, FundNAV, FundPerformance
+from apps.funds.models import Fund, FundNAV, FundPerformance, Playlist, PlaylistFund
 
 
 @admin.register(Fund)
@@ -34,3 +34,20 @@ class FundPerformanceAdmin(admin.ModelAdmin):
     search_fields = ("fund__name",)
     list_filter = ("period",)
     ordering = ("-calculated_at",)
+
+
+class PlaylistFundInline(admin.TabularInline):
+    model = PlaylistFund
+    extra = 1
+    autocomplete_fields = ("fund",)
+    ordering = ("position",)
+
+
+@admin.register(Playlist)
+class PlaylistAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "is_active", "created_at")
+    search_fields = ("name", "slug")
+    list_filter = ("is_active",)
+    prepopulated_fields = {"slug": ("name",)}
+    inlines = [PlaylistFundInline]
+    ordering = ("name",)

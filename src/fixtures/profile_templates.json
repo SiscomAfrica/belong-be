@@ -1,0 +1,103 @@
+{
+  "playlists": [
+    {
+      "name": "Easy Now",
+      "slug": "easy-now",
+      "description": "Slow money is still growing money. These jams protect what you have while quietly building more.",
+      "funds": [
+        {"slug": "stable-gains", "returns_label": "Annualised returns"}
+      ]
+    },
+    {
+      "name": "First Drop",
+      "slug": "first-drop",
+      "description": "Your first investment playlist. A balanced mix to get you started.",
+      "funds": [
+        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"},
+        {"slug": "old-is-gold", "returns_label": "5-Year annualised returns"},
+        {"slug": "stable-gains", "returns_label": "Annualised returns"}
+      ]
+    },
+    {
+      "name": "World Tour",
+      "slug": "world-tour",
+      "description": "Your money now lives on every continent. The next big boom could come from anywhere.",
+      "funds": [
+        {"slug": "old-is-gold", "returns_label": "5-Year annualised returns"},
+        {"slug": "stable-gains", "returns_label": "Annualised returns"},
+        {"slug": "creative-bangers", "returns_label": "1-Year returns"}
+      ]
+    },
+    {
+      "name": "On The Rise",
+      "slug": "on-the-rise",
+      "description": "A savings account is losing you money. These jams are built to actually grow it.",
+      "funds": [
+        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"},
+        {"slug": "espresso-portfolio", "returns_label": "3-Year annualised returns"}
+      ]
+    },
+    {
+      "name": "Big Moves",
+      "slug": "big-moves",
+      "description": "High risk, high ceiling. These jams are building what comes next.",
+      "funds": [
+        {"slug": "crypto-maniacs", "returns_label": "1-Year returns"},
+        {"slug": "espresso-portfolio", "returns_label": "3-Year annualised returns"},
+        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"}
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "investor_type": "CONSERVATIVE",
+      "name": "The Steady Builder",
+      "slug": "steady",
+      "accent": "investor.",
+      "badge_label": "STEADY UNLOCK",
+      "description": "Slow money is still growing money. These jams(ETFs) protect what you have while quietly building more.",
+      "playlist_slug": "easy-now",
+      "position": 0
+    },
+    {
+      "investor_type": "MODERATE",
+      "name": "Set It & Grow It",
+      "slug": "set-and-grow",
+      "accent": "investor.",
+      "badge_label": "ACHIEVER UNLOCK",
+      "description": "You prefer steady progress over constant market noise. By investing steadily and staying patient, you let your money grow quietly in the background while you focus on living your life.",
+      "playlist_slug": "first-drop",
+      "position": 1
+    },
+    {
+      "investor_type": "INTERMEDIATE",
+      "name": "The Global Diversifier",
+      "slug": "global",
+      "accent": "investor.",
+      "badge_label": "GLOBAL UNLOCK",
+      "description": "Your money now lives on every continent. The next big boom could come from anywhere.",
+      "playlist_slug": "world-tour",
+      "position": 2
+    },
+    {
+      "investor_type": "AGGRESSIVE",
+      "name": "The Wealth Grower",
+      "slug": "wealth",
+      "accent": "investor.",
+      "badge_label": "WEALTH UNLOCK",
+      "description": "A savings account is losing you money in real terms. These jams(ETFs) are built to actually grow it.",
+      "playlist_slug": "on-the-rise",
+      "position": 3
+    },
+    {
+      "investor_type": "HIGH_RISK",
+      "name": "The High-Growth Seeker",
+      "slug": "high-growth",
+      "accent": "investor.",
+      "badge_label": "GROWTH UNLOCK",
+      "description": "These are the Jams (ETFs) building what comes next. High risk, high ceiling, but you knew that.",
+      "playlist_slug": "big-moves",
+      "position": 4
+    }
+  ]
+}

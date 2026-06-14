@@ -18,6 +18,7 @@ from config.redoc_view import redoc_view
 from apps.compliance.api import compliance_router
 from apps.feed.api import feed_router
 from apps.funds.api import funds_router
+from apps.funds.api_playlists import playlists_router
 from apps.investments.api_goals import goals_router
 from apps.investments.api_investments import investments_router
 from apps.investments.api_plans import plans_router
@@ -62,6 +63,7 @@ api.add_router("/recurring-plans", plans_router, tags=["recurring-plans"])
 api.add_router("/investment-goals", goals_router, tags=["investment-goals"])
 api.add_router("/wallet", wallet_router, tags=["wallet"])
 api.add_router("/ai-profiler", profiler_router, tags=["ai-profiler"])
+api.add_router("/playlists", playlists_router, tags=["playlists"])
 api.add_router("/referrals", referrals_router, tags=["referrals"])
 api.add_router("/compliance", compliance_router, tags=["compliance"])
 

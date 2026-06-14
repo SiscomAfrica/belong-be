@@ -7,6 +7,11 @@ from apps.funds.schemas.output import (
     FundPerformanceOut,
     ProjectionOut,
 )
+from apps.funds.schemas.output_playlist import (
+    PlaylistFundOut,
+    PlaylistListOut,
+    PlaylistOut,
+)
 
 __all__ = [
     "FundDetailOut",
@@ -14,6 +19,9 @@ __all__ = [
     "FundNAVOut",
     "FundOut",
     "FundPerformanceOut",
+    "PlaylistFundOut",
+    "PlaylistListOut",
+    "PlaylistOut",
     "ProjectionIn",
     "ProjectionOut",
 ]

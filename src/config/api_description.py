@@ -84,4 +84,17 @@ Access tokens expire in 15 min; refresh tokens in 30 days.
 | Compliance | `GET /compliance/limits`, `POST /compliance/consent` |
 | Withdrawals | `POST /withdrawals/`, `GET /withdrawals/` |
 | Wallet | `GET /wallet/` |
+
+---
+
+## 5 - Profiles & Playlists
+
+| Step | Method | Path |
+|------|--------|------|
+| List templates | GET | `/ai-profiler/templates` |
+| List playlists | GET | `/playlists/` |
+| Playlist detail | GET | `/playlists/{id}` |
+
+**Flow:** Questionnaire -> AI investor type -> profile template -> playlist -> jams.
+All three endpoints are public (`auth=None`).
 """

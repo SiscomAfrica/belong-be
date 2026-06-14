@@ -20,6 +20,7 @@ class FundOut(Schema):
     currency: str = Field(description="Fund denomination currency (ISO 4217)")
     minimum_investment: Decimal = Field(description="Minimum investment amount in KES")
     projected_annual_return: Decimal = Field(description="Projected annual return percentage")
+    emoji: str = Field(description="Display emoji for the fund")
     hero_image_url: str = Field(description="Card hero image URL")
     is_trending: bool = Field(description="Whether fund is currently trending")
     is_active: bool = Field(description="Whether fund accepts new investments")

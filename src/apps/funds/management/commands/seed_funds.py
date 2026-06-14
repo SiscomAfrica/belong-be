@@ -40,6 +40,7 @@ class Command(BaseCommand):
                     "projected_annual_return": Decimal(entry["projected_annual_return"]),
                     "effective_annual_yield": Decimal(entry["projected_annual_return"]),
                     "annualized_daily_yield": Decimal(entry["projected_annual_return"]) / 365,
+                    "emoji": entry.get("emoji", ""),
                     "is_trending": entry.get("is_trending", False),
                 },
             )

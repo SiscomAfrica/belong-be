@@ -8,12 +8,14 @@ from apps.ai_profiler.schemas import (
     InvestorProfileOut,
     MessageIn,
     MessageOut,
+    ProfileTemplateListOut,
     SessionDetailOut,
     SessionListOut,
     SessionOut,
 )
 from apps.ai_profiler.selectors.get_investor_profile import get_investor_profile
 from apps.ai_profiler.selectors.get_session import get_session
+from apps.ai_profiler.selectors.list_profile_templates import list_profile_templates
 from apps.ai_profiler.selectors.list_user_sessions import list_user_sessions
 from apps.ai_profiler.services.complete_session import complete_session
 from apps.ai_profiler.services.send_message import send_message
@@ -58,3 +60,10 @@ def get_session_endpoint(request, session_id: UUID):
 def get_profile_endpoint(request):
     """Return the user's AI-generated investor profile."""
     return get_investor_profile(user_id=request.auth.id)
+
+
+@profiler_router.get("/templates", response=ProfileTemplateListOut, auth=None)
+def list_templates_endpoint(request):
+    """List all active profile templates with nested playlists and funds."""
+    qs = list_profile_templates()
+    return ProfileTemplateListOut(items=list(qs), count=qs.count())
