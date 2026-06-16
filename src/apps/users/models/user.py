@@ -5,6 +5,8 @@ import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from apps.users.models.manager import UserManager
+
 
 class InvestorType(models.TextChoices):
     CONSERVATIVE = "CONSERVATIVE", "Conservative"
@@ -40,6 +42,8 @@ class User(AbstractUser):
     referral_code = models.CharField(max_length=12, unique=True, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    objects = UserManager()
 
     USERNAME_FIELD = "phone"
     REQUIRED_FIELDS: list[str] = []
