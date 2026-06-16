@@ -27,7 +27,7 @@ class Command(BaseCommand):
         now = timezone.now()
 
         for entry in data:
-            fund, created = Fund.objects.get_or_create(
+            fund, created = Fund.objects.update_or_create(
                 slug=entry["slug"],
                 defaults={
                     "name": entry["name"],
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     "is_trending": entry.get("is_trending", False),
                 },
             )
-            action = "Created" if created else "Exists"
+            action = "Created" if created else "Updated"
             self.stdout.write(f"  {action}: {fund.name}")
 
             underlying = entry.get("underlying", [])

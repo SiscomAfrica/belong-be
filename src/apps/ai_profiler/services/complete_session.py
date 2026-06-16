@@ -8,6 +8,7 @@ from apps.ai_profiler.services.score_investor_type import score_investor_type
 from apps.audit.models.audit_log import AuditAction
 from apps.audit.services.create_audit_log import create_audit_log
 from apps.users.models import User
+from apps.users.services.mark_onboarded import mark_onboarded
 from apps.users.services.set_investor_type import set_investor_type
 
 
@@ -35,6 +36,7 @@ def complete_session(*, session_id: UUID, user_id: UUID) -> InvestorProfile:
 
     user = User.objects.get(pk=user_id)
     set_investor_type(user=user, investor_type=scores["investor_type"])
+    mark_onboarded(user=user)
 
     session.status = SessionStatus.COMPLETED
     session.summary = f"Type: {scores['investor_type']}, Risk: {scores['risk_tolerance']}"
