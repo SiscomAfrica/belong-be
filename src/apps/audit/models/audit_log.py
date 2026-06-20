@@ -33,6 +33,7 @@ class AuditAction(models.TextChoices):
     REFERRAL_CREATED = "REFERRAL_CREATED", "Referral Created"
     REFERRAL_CONVERTED = "REFERRAL_CONVERTED", "Referral Converted"
     CONSENT_RECORDED = "CONSENT_RECORDED", "Consent Recorded"
+    INVESTMENT_KYC_ACTIVATED = "INVESTMENT_KYC_ACTIVATED", "Investment KYC Activated"
 
 
 class AuditLog(models.Model):

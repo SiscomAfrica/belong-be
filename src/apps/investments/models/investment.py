@@ -8,6 +8,7 @@ from apps.common.models.base import BaseModel
 
 class InvestmentStatus(models.TextChoices):
     PENDING = "PENDING", "Pending"
+    PENDING_KYC = "PENDING_KYC", "Pending KYC Verification"
     CONFIRMED = "CONFIRMED", "Confirmed"
     FAILED = "FAILED", "Failed"
     CANCELLED = "CANCELLED", "Cancelled"
@@ -28,7 +29,7 @@ class Investment(BaseModel):
     units = models.DecimalField(max_digits=18, decimal_places=6)
     nav_at_purchase = models.DecimalField(max_digits=18, decimal_places=2)
     status = models.CharField(
-        max_length=20,
+        max_length=25,
         choices=InvestmentStatus.choices,
         default=InvestmentStatus.PENDING,
         db_index=True,

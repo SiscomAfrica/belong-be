@@ -3,6 +3,9 @@ from __future__ import annotations
 from decimal import Decimal
 from uuid import UUID
 
+from django.db.models import Sum
+
+from apps.investments.models import Investment, InvestmentStatus
 from apps.investments.selectors.list_user_holdings import list_user_holdings
 
 
@@ -17,6 +20,15 @@ def get_portfolio_summary(*, user_id: UUID) -> dict:
         total_value += getattr(h, "current_value", Decimal("0"))
         total_invested += h.total_invested
         count += 1
+
+    pending_kyc_amount = (
+        Investment.objects.filter(
+            user_id=user_id, status=InvestmentStatus.PENDING_KYC,
+        ).aggregate(total=Sum("amount"))["total"]
+        or Decimal("0")
+    )
+    total_value += pending_kyc_amount
+    total_invested += pending_kyc_amount
 
     total_gain = total_value - total_invested
     gain_pct = (

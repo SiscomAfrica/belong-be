@@ -14,6 +14,15 @@ from apps.investments.exceptions import (
     NoNAVDataError,
 )
 from apps.investments.models import Investment, InvestmentStatus
+from apps.kyc.models import KYCStatus
+from apps.kyc.selectors.get_kyc_status import get_kyc_status
+
+
+def _resolve_investment_status(*, user_id: UUID) -> str:
+    kyc = get_kyc_status(user_id=user_id)
+    if kyc["status"] == KYCStatus.VERIFIED:
+        return InvestmentStatus.PENDING
+    return InvestmentStatus.PENDING_KYC
 
 
 def create_investment(
@@ -22,6 +31,8 @@ def create_investment(
     existing = Investment.objects.filter(idempotency_key=idempotency_key).first()
     if existing:
         return existing
+
+    status = _resolve_investment_status(user_id=user_id)
 
     check_investment_limit(user_id=user_id, amount=amount)
 
@@ -43,7 +54,7 @@ def create_investment(
         amount=amount,
         units=units,
         nav_at_purchase=nav.nav_value,
-        status=InvestmentStatus.PENDING,
+        status=status,
         idempotency_key=idempotency_key,
     )
 

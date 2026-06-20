@@ -1,3 +1,4 @@
+from apps.investments.services.activate_pending_investments import activate_pending_investments
 from apps.investments.services.cancel_investment import cancel_investment
 from apps.investments.services.confirm_investment import confirm_investment
 from apps.investments.services.create_investment import create_investment
@@ -10,6 +11,7 @@ from apps.investments.services.update_investment_goal import update_investment_g
 from apps.investments.services.update_recurring_plan import update_recurring_plan
 
 __all__ = [
+    "activate_pending_investments",
     "cancel_investment",
     "confirm_investment",
     "create_investment",

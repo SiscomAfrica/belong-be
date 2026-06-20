@@ -13,3 +13,7 @@ class WalletOut(Schema):
     balance_ksh: Decimal = Field(description="Wallet balance in KES")
     balance_usd: Decimal = Field(description="Wallet balance converted to USD")
     updated_at: datetime = Field(description="Last balance update timestamp")
+    kyc_status: str = Field(description="User KYC verification status")
+    has_pending_kyc_investments: bool = Field(
+        description="Whether user has investments pending KYC",
+    )

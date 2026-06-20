@@ -62,7 +62,17 @@ def process_kyc_webhook(*, payload: dict) -> None:
         )
 
     if result.success:
+        _try_activate_investments(user_id=submission.user_id)
         _try_convert_referral(user_id=submission.user_id)
+
+
+def _try_activate_investments(*, user_id) -> None:  # noqa: ANN001
+    try:
+        from apps.investments.services.activate_pending_investments import activate_pending_investments
+
+        activate_pending_investments(user_id=user_id)
+    except Exception:
+        logger.warning("Investment activation failed for user %s", user_id)
 
 
 def _try_convert_referral(*, user_id) -> None:
