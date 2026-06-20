@@ -13,7 +13,11 @@ def cancel_investment(*, investment_id: UUID, user_id: UUID) -> Investment:
     with transaction.atomic():
         investment = (
             Investment.objects.select_for_update()
-            .get(id=investment_id, user_id=user_id, status=InvestmentStatus.PENDING)
+            .get(
+                id=investment_id,
+                user_id=user_id,
+                status__in=[InvestmentStatus.PENDING, InvestmentStatus.PENDING_KYC],
+            )
         )
         investment.status = InvestmentStatus.CANCELLED
         investment.save(update_fields=["status", "updated_at"])

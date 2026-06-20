@@ -7,6 +7,7 @@ from ninja import Query, Router
 from apps.investments.schemas import InvestmentCreateIn, InvestmentListOut, InvestmentOut
 from apps.investments.selectors.get_investment import get_investment
 from apps.investments.selectors.list_user_investments import list_user_investments
+from apps.investments.services.cancel_investment import cancel_investment
 from apps.investments.services.create_investment import create_investment
 
 investments_router = Router(tags=["investments"])
@@ -41,3 +42,9 @@ def list_investments(  # noqa: ANN001, ANN201
 def detail(request, investment_id: UUID):  # noqa: ANN001, ANN201
     """Return details for a single investment."""
     return get_investment(investment_id=investment_id, user_id=request.auth.id)
+
+
+@investments_router.post("/{investment_id}/cancel", response=InvestmentOut)
+def cancel(request, investment_id: UUID):  # noqa: ANN001, ANN201
+    """Cancel a pending investment that was never paid."""
+    return cancel_investment(investment_id=investment_id, user_id=request.auth.id)

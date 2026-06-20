@@ -21,12 +21,7 @@ def get_portfolio_summary(*, user_id: UUID) -> dict:
         total_invested += h.total_invested
         count += 1
 
-    pending_kyc_amount = (
-        Investment.objects.filter(
-            user_id=user_id, status=InvestmentStatus.PENDING_KYC,
-        ).aggregate(total=Sum("amount"))["total"]
-        or Decimal("0")
-    )
+    pending_kyc_amount = _paid_pending_kyc_total(user_id=user_id)
     total_value += pending_kyc_amount
     total_invested += pending_kyc_amount
 
@@ -52,3 +47,21 @@ def get_portfolio_summary(*, user_id: UUID) -> dict:
         "daily_change": snapshot.daily_change if snapshot else Decimal("0"),
         "daily_change_pct": snapshot.daily_change_pct if snapshot else Decimal("0"),
     }
+
+
+def _paid_pending_kyc_total(*, user_id: UUID) -> Decimal:
+    """Only count PENDING_KYC investments that have a payment."""
+    from apps.payments.models import PaymentTransaction
+
+    paid_ids = PaymentTransaction.objects.filter(
+        user_id=user_id,
+    ).values_list("investment_id", flat=True)
+
+    return (
+        Investment.objects.filter(
+            user_id=user_id,
+            status=InvestmentStatus.PENDING_KYC,
+            id__in=paid_ids,
+        ).aggregate(total=Sum("amount"))["total"]
+        or Decimal("0")
+    )
