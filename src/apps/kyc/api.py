@@ -10,7 +10,7 @@ from apps.kyc.schemas import (
     KYCSubmissionOut,
     KYCWebhookAckOut,
 )
-from apps.kyc.selectors import get_kyc_status
+from apps.kyc.selectors import get_kyc_status, get_kyc_submission
 from apps.kyc.services import (
     process_kyc_webhook,
     save_personal_info,
@@ -64,6 +64,12 @@ def webhook(request, payload: dict):  # noqa: ANN001, ANN201
     """Receive KYC verification results from Smile Identity."""
     process_kyc_webhook(payload=payload)
     return {"status": "received"}
+
+
+@kyc_router.get("/submission", response=KYCSubmissionOut)
+def submission(request):  # noqa: ANN001, ANN201
+    """Return the authenticated user's full KYC submission details."""
+    return get_kyc_submission(user_id=request.auth.id)
 
 
 @kyc_router.get("/status", response=KYCStatusOut)
