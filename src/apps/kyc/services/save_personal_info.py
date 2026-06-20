@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date
 from uuid import UUID
 
-from apps.kyc.exceptions import KYCInvalidStateError, KYCNotFoundError
+from apps.kyc.exceptions import KYCInvalidStateError
 from apps.kyc.models import KYCStatus, KYCSubmission
 
 
@@ -24,10 +24,10 @@ def save_personal_info(
     kin_phone: str = "",
     kin_email: str = "",
 ) -> KYCSubmission:
-    try:
-        submission = KYCSubmission.objects.get(user_id=user_id)
-    except KYCSubmission.DoesNotExist:
-        raise KYCNotFoundError()
+    submission, _ = KYCSubmission.objects.get_or_create(
+        user_id=user_id,
+        defaults={"status": KYCStatus.PENDING},
+    )
 
     if submission.status not in (KYCStatus.PENDING, KYCStatus.NOT_STARTED):
         raise KYCInvalidStateError("Cannot update personal info after submission.")

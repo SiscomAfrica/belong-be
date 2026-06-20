@@ -7,7 +7,7 @@ from pydantic import Field
 
 
 class KYCStartIn(Schema):
-    document_type: str = Field(pattern="^(NATIONAL_ID|PASSPORT|DRIVING_LICENSE)$", description="ID document type to verify")
+    document_type: str = Field(default="NATIONAL_ID", pattern="^(NATIONAL_ID|PASSPORT|DRIVING_LICENSE)$", description="ID document type to verify")
 
 
 class KYCDocumentUploadIn(Schema):
