@@ -38,6 +38,25 @@ class KYCSubmission(BaseModel):
     submitted_at = models.DateTimeField(null=True, blank=True)
     result_text = models.TextField(blank=True, default="")
 
+    # --- Personal information (from KYC form) ---
+    first_name = models.CharField(max_length=100, blank=True, default="")
+    last_name = models.CharField(max_length=100, blank=True, default="")
+    date_of_birth = models.DateField(null=True, blank=True)
+    nationality = models.CharField(max_length=50, blank=True, default="")
+    id_number = models.CharField(max_length=50, blank=True, default="")
+    kra_pin = models.CharField(max_length=20, blank=True, default="")
+
+    # --- Residential & financial (from extended form) ---
+    city = models.CharField(max_length=100, blank=True, default="")
+    address = models.CharField(max_length=255, blank=True, default="")
+    employment_status = models.CharField(max_length=30, blank=True, default="")
+    income_source = models.CharField(max_length=30, blank=True, default="")
+
+    # --- Next of kin ---
+    kin_name = models.CharField(max_length=100, blank=True, default="")
+    kin_phone = models.CharField(max_length=20, blank=True, default="")
+    kin_email = models.EmailField(blank=True, default="")
+
     class Meta:
         db_table = "kyc_submission"
         ordering = ["-created_at"]

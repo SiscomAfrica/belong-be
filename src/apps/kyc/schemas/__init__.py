@@ -1,4 +1,4 @@
-from apps.kyc.schemas.input import KYCDocumentUploadIn, KYCSelfieUploadIn, KYCStartIn
+from apps.kyc.schemas.input import KYCDocumentUploadIn, KYCPersonalInfoIn, KYCStartIn
 from apps.kyc.schemas.output import (
     KYCDocumentOut,
     KYCStatusOut,
@@ -9,7 +9,7 @@ from apps.kyc.schemas.output import (
 __all__ = [
     "KYCDocumentOut",
     "KYCDocumentUploadIn",
-    "KYCSelfieUploadIn",
+    "KYCPersonalInfoIn",
     "KYCStartIn",
     "KYCStatusOut",
     "KYCSubmissionOut",

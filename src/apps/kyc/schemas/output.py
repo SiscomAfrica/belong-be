@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from uuid import UUID
 
 from ninja import Schema
@@ -16,12 +16,24 @@ class KYCDocumentOut(Schema):
 
 class KYCSubmissionOut(Schema):
     id: UUID = Field(description="KYC submission identifier")
-    status: str = Field(description="Status: PENDING | SUBMITTED | APPROVED | REJECTED")
+    status: str = Field(description="KYC status")
     document_type: str = Field(description="Document type used for verification")
-    smile_job_id: str = Field(description="Smile Identity external job ID")
-    submitted_at: datetime | None = Field(default=None, description="When documents were submitted for review")
+    submitted_at: datetime | None = Field(default=None)
     documents: list[KYCDocumentOut] = Field(description="Uploaded document records")
     created_at: datetime = Field(description="Submission creation timestamp")
+    first_name: str = Field(default="")
+    last_name: str = Field(default="")
+    date_of_birth: date | None = Field(default=None)
+    nationality: str = Field(default="")
+    id_number: str = Field(default="")
+    kra_pin: str = Field(default="")
+    city: str = Field(default="")
+    address: str = Field(default="")
+    employment_status: str = Field(default="")
+    income_source: str = Field(default="")
+    kin_name: str = Field(default="")
+    kin_phone: str = Field(default="")
+    kin_email: str = Field(default="")
 
     @staticmethod
     def resolve_documents(obj) -> list:  # noqa: ANN001
@@ -31,7 +43,7 @@ class KYCSubmissionOut(Schema):
 
 
 class KYCStatusOut(Schema):
-    status: str = Field(description="Current KYC status: NONE | PENDING | APPROVED | REJECTED")
+    status: str = Field(description="Current KYC status")
     submission_id: UUID | None = Field(default=None, description="Active submission UUID if any")
 
 
