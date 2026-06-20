@@ -9,6 +9,7 @@ from apps.investments.services.cancel_investment import cancel_investment
 from apps.investments.services.confirm_investment import confirm_investment
 from apps.payments.models import PaymentStatus, PaymentTransaction
 from apps.payments.providers.mpesa import MpesaProvider
+from apps.payments.services.credit_wallet import credit_wallet
 
 
 def process_mpesa_callback(*, payload: dict) -> None:
@@ -36,6 +37,7 @@ def process_mpesa_callback(*, payload: dict) -> None:
         if result.success:
             txn.status = PaymentStatus.SUCCESS
             txn.save(update_fields=["status", "provider_response", "completed_at", "updated_at"])
+            credit_wallet(user_id=txn.user_id, amount=txn.amount, currency="KES")
             if txn.investment_id:
                 confirm_investment(investment_id=txn.investment_id)
             action = AuditAction.PAYMENT_RECEIVED
