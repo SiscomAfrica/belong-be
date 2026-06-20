@@ -39,6 +39,7 @@ class User(AbstractUser):
     )
     is_onboarded = models.BooleanField(default=False)
     terms_accepted_at = models.DateTimeField(null=True, blank=True)
+    profile_image_key = models.CharField(max_length=512, blank=True, default="")
     referral_code = models.CharField(max_length=12, unique=True, blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
