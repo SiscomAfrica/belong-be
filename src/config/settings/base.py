@@ -104,3 +104,4 @@ from config.settings.base_payments import *  # noqa: E402, F401, F403
 from config.settings.base_kyc import *  # noqa: E402, F401, F403
 from config.settings.base_llm import *  # noqa: E402, F401, F403
 from config.settings.base_sms import *  # noqa: E402, F401, F403
+from config.settings.base_storage import *  # noqa: E402, F401, F403

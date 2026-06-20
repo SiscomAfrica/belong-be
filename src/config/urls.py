@@ -11,6 +11,7 @@ from ninja_jwt.routers.verify import verify_router
 from apps.ai_profiler.api import profiler_router
 from apps.authentication.api import auth_router
 from apps.common.api import health_router
+from apps.common.api_uploads import uploads_router
 from apps.common.exceptions import AppError
 from apps.common.schemas import ErrorOut
 from config.api_description import API_DESCRIPTION
@@ -66,6 +67,7 @@ api.add_router("/ai-profiler", profiler_router, tags=["ai-profiler"])
 api.add_router("/playlists", playlists_router, tags=["playlists"])
 api.add_router("/referrals", referrals_router, tags=["referrals"])
 api.add_router("/compliance", compliance_router, tags=["compliance"])
+api.add_router("/uploads", uploads_router, tags=["uploads"])
 
 
 @api.exception_handler(AppError)
