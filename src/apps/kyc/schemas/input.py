@@ -11,7 +11,7 @@ class KYCStartIn(Schema):
 
 
 class KYCDocumentUploadIn(Schema):
-    side: str = Field(pattern="^(FRONT|BACK)$", description="Document side: FRONT or BACK")
+    side: str = Field(pattern="^(FRONT|BACK|SELFIE)$", description="Document side: FRONT, BACK, or SELFIE")
     file_key: str = Field(min_length=1, max_length=500, description="S3 file key of the uploaded document image")
 
 

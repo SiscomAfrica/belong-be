@@ -32,7 +32,7 @@ def initiate_payment(
             Investment.objects.select_for_update()
             .get(id=investment_id, user_id=user_id)
         )
-        if investment.status != InvestmentStatus.PENDING:
+        if investment.status not in (InvestmentStatus.PENDING, InvestmentStatus.PENDING_KYC):
             raise InvestmentNotPendingError()
 
         has_active = PaymentTransaction.objects.filter(
