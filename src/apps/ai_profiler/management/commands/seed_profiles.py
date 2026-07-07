@@ -33,17 +33,18 @@ class Command(BaseCommand):
         playlists: dict[str, Playlist] = {}
 
         for entry in entries:
-            playlist, created = Playlist.objects.get_or_create(
+            playlist, created = Playlist.objects.update_or_create(
                 slug=entry["slug"],
                 defaults={
                     "name": entry["name"],
                     "description": entry.get("description", ""),
                 },
             )
-            action = "Created" if created else "Exists"
+            action = "Created" if created else "Updated"
             self.stdout.write(f"  Playlist {action}: {playlist.name}")
             playlists[entry["slug"]] = playlist
 
+            PlaylistFund.objects.filter(playlist=playlist).delete()
             for position, fund_entry in enumerate(entry.get("funds", [])):
                 slug = fund_entry["slug"] if isinstance(fund_entry, dict) else fund_entry
                 label = fund_entry.get("returns_label", "") if isinstance(fund_entry, dict) else ""
@@ -51,24 +52,22 @@ class Command(BaseCommand):
                 if not fund:
                     self.stdout.write(f"    Skip fund (not found): {slug}")
                     continue
-                PlaylistFund.objects.get_or_create(
-                    playlist=playlist,
-                    fund=fund,
-                    defaults={"position": position, "returns_label": label},
+                PlaylistFund.objects.create(
+                    playlist=playlist, fund=fund, position=position, returns_label=label,
                 )
 
         return playlists
 
     def _seed_profiles(
-        self, entries: list[dict], playlists: dict[str, Playlist]
+        self, entries: list[dict], playlists: dict[str, Playlist],
     ) -> None:
         for entry in entries:
             playlist = playlists.get(entry["playlist_slug"])
-            template, created = ProfileTemplate.objects.get_or_create(
-                slug=entry["slug"],
+            ProfileTemplate.objects.update_or_create(
+                investor_type=entry["investor_type"],
                 defaults={
-                    "investor_type": entry["investor_type"],
                     "name": entry["name"],
+                    "slug": entry["slug"],
                     "accent": entry.get("accent", "investor."),
                     "badge_label": entry["badge_label"],
                     "description": entry["description"],
@@ -76,5 +75,4 @@ class Command(BaseCommand):
                     "position": entry.get("position", 0),
                 },
             )
-            action = "Created" if created else "Exists"
-            self.stdout.write(f"  Template {action}: {template.name}")
+            self.stdout.write(f"  Template: {entry['name']}")

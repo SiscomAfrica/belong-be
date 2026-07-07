@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 
 from apps.funds.models import Fund
@@ -19,6 +20,17 @@ def create_fund(
     projected_annual_return: Decimal,
     effective_annual_yield: Decimal,
     annualized_daily_yield: Decimal,
+    ticker_symbol: str = "",
+    expense_ratio: Decimal | None = None,
+    aum: Decimal | None = None,
+    ytd_return: Decimal | None = None,
+    launched_date: date | None = None,
+    management_type: str = "",
+    listed_country: str = "",
+    fund_manager: str = "",
+    top_holdings: list | None = None,
+    perfect_for: str = "",
+    chart_url: str = "",
     hero_image_url: str = "",
     metadata: dict | None = None,
 ) -> Fund:
@@ -35,6 +47,17 @@ def create_fund(
         projected_annual_return=projected_annual_return,
         effective_annual_yield=effective_annual_yield,
         annualized_daily_yield=annualized_daily_yield,
+        ticker_symbol=ticker_symbol,
+        expense_ratio=expense_ratio,
+        aum=aum,
+        ytd_return=ytd_return,
+        launched_date=launched_date,
+        management_type=management_type,
+        listed_country=listed_country,
+        fund_manager=fund_manager,
+        top_holdings=top_holdings or [],
+        perfect_for=perfect_for,
+        chart_url=chart_url,
         hero_image_url=hero_image_url,
         metadata=metadata or {},
     )

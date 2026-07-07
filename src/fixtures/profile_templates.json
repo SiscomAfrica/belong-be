@@ -1,51 +1,48 @@
 {
   "playlists": [
     {
-      "name": "Easy Now",
-      "slug": "easy-now",
-      "description": "Slow money is still growing money. These jams protect what you have while quietly building more.",
+      "name": "Money On Repeat",
+      "slug": "money-on-repeat",
+      "description": "These jams grow your deposit without putting it at risk. A balanced mix of dependable companies, broad market exposure, and long-term growth potential.",
       "funds": [
-        {"slug": "stable-gains", "returns_label": "Annualised returns"}
+        {"slug": "memory-lane", "returns_label": "YTD returns"},
+        {"slug": "sleeper-hits", "returns_label": "YTD returns"},
+        {"slug": "ai-rush", "returns_label": "YTD returns"}
       ]
     },
     {
       "name": "First Drop",
       "slug": "first-drop",
-      "description": "Your first investment playlist. A balanced mix to get you started.",
+      "description": "Low risk, steady returns, and zero complexity. Designed for beginners who want to build confidence and let their money grow steadily without constantly watching the market.",
       "funds": [
-        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"},
-        {"slug": "old-is-gold", "returns_label": "5-Year annualised returns"},
-        {"slug": "stable-gains", "returns_label": "Annualised returns"}
+        {"slug": "stable-gains", "returns_label": "YTD returns"},
+        {"slug": "all-in-one-stack", "returns_label": "YTD returns"}
       ]
     },
     {
       "name": "World Tour",
       "slug": "world-tour",
-      "description": "Your money now lives on every continent. The next big boom could come from anywhere.",
+      "description": "Your money now lives on every continent. Diversifies across industries, countries, and global innovators while keeping your portfolio balanced.",
       "funds": [
-        {"slug": "old-is-gold", "returns_label": "5-Year annualised returns"},
-        {"slug": "stable-gains", "returns_label": "Annualised returns"},
-        {"slug": "creative-bangers", "returns_label": "1-Year returns"}
+        {"slug": "digital-giants", "returns_label": "YTD returns"},
+        {"slug": "seoul-stack", "returns_label": "YTD returns"}
+      ]
+    },
+    {
+      "name": "Big Moves",
+      "slug": "big-moves",
+      "description": "These are the companies building what comes next. Built for investors who are chasing innovation and are comfortable taking on more risk for greater growth potential.",
+      "funds": [
+        {"slug": "ignite", "returns_label": "YTD returns"},
+        {"slug": "silicon-squad", "returns_label": "YTD returns"},
+        {"slug": "power-core", "returns_label": "YTD returns"}
       ]
     },
     {
       "name": "On The Rise",
       "slug": "on-the-rise",
       "description": "A savings account is losing you money. These jams are built to actually grow it.",
-      "funds": [
-        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"},
-        {"slug": "espresso-portfolio", "returns_label": "3-Year annualised returns"}
-      ]
-    },
-    {
-      "name": "Big Moves",
-      "slug": "big-moves",
-      "description": "High risk, high ceiling. These jams are building what comes next.",
-      "funds": [
-        {"slug": "crypto-maniacs", "returns_label": "1-Year returns"},
-        {"slug": "espresso-portfolio", "returns_label": "3-Year annualised returns"},
-        {"slug": "tech-bundle", "returns_label": "10-Year annualised returns"}
-      ]
+      "funds": []
     }
   ],
   "profiles": [
@@ -55,8 +52,8 @@
       "slug": "steady",
       "accent": "investor.",
       "badge_label": "STEADY UNLOCK",
-      "description": "Slow money is still growing money. These jams(ETFs) protect what you have while quietly building more.",
-      "playlist_slug": "easy-now",
+      "description": "You believe wealth isn't built in a day \u2014 it's built every day. With consistent, disciplined contributions, you're stacking progress one step at a time, turning small habits into something significant.",
+      "playlist_slug": "money-on-repeat",
       "position": 0
     },
     {
@@ -75,7 +72,7 @@
       "slug": "global",
       "accent": "investor.",
       "badge_label": "GLOBAL UNLOCK",
-      "description": "Your money now lives on every continent. The next big boom could come from anywhere.",
+      "description": "You don't bet on one market when the whole world is open to you. By spreading your investments across global opportunities, you capture growth wherever it happens.",
       "playlist_slug": "world-tour",
       "position": 2
     },
@@ -85,7 +82,7 @@
       "slug": "wealth",
       "accent": "investor.",
       "badge_label": "WEALTH UNLOCK",
-      "description": "A savings account is losing you money in real terms. These jams(ETFs) are built to actually grow it.",
+      "description": "You've got momentum and you intend to keep it. By putting your money to work in assets built for growth, you're not just growing wealth \u2014 you're building the kind of financial life that opens doors.",
       "playlist_slug": "on-the-rise",
       "position": 3
     },
@@ -95,7 +92,7 @@
       "slug": "high-growth",
       "accent": "investor.",
       "badge_label": "GROWTH UNLOCK",
-      "description": "These are the Jams (ETFs) building what comes next. High risk, high ceiling, but you knew that.",
+      "description": "You're not here to play it safe. You chase the opportunities others hesitate at, knowing that the biggest rewards come to those bold enough to move.",
       "playlist_slug": "big-moves",
       "position": 4
     }

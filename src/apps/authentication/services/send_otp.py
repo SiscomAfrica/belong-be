@@ -11,7 +11,8 @@ from django.utils import timezone
 from apps.authentication.models import OTP
 from apps.authentication.selectors.count_active_otps import count_active_otps
 from apps.authentication.sms import send_sms
-from apps.common.exceptions import RateLimitError
+from apps.common.exceptions import NotFoundError, RateLimitError
+from apps.users.selectors.get_user_by_phone import get_user_by_phone
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +25,11 @@ def _hash_code(code: str) -> str:
 
 
 def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> OTP:
+    if purpose == "LOGIN":
+        user = get_user_by_phone(phone=phone)
+        if user is None or not user.is_active:
+            raise NotFoundError("No account found with this phone number.")
+
     active_count = count_active_otps(phone=phone)
     if active_count >= MAX_ACTIVE_OTPS:
         raise RateLimitError("Too many active OTPs. Please wait before requesting another.")
