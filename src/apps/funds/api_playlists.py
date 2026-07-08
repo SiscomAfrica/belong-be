@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from uuid import UUID
-
 from ninja import Router
 
 from apps.funds.schemas import PlaylistListOut, PlaylistOut
@@ -19,6 +17,6 @@ def list_playlists_endpoint(request):
 
 
 @playlists_router.get("/{playlist_id}", response=PlaylistOut)
-def get_playlist_endpoint(request, playlist_id: UUID):
-    """Return a single playlist with its ordered funds."""
+def get_playlist_endpoint(request, playlist_id: str):
+    """Return a single playlist by UUID or slug."""
     return get_playlist(playlist_id=playlist_id)
