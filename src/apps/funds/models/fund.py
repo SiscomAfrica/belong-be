@@ -3,6 +3,8 @@ from __future__ import annotations
 from django.db import models
 
 from apps.common.models.base import BaseModel
+from apps.common.storage import hero_image_upload_path
+from apps.common.validators import validate_image_max_5mb
 from apps.funds.models.enums import (
     Currency,
     FundCategory,
@@ -47,6 +49,12 @@ class Fund(BaseModel):
     chart_url = models.URLField(max_length=500, blank=True, default="")
     emoji = models.CharField(max_length=10, blank=True, default="")
     hero_image_url = models.URLField(blank=True, default="")
+    hero_image = models.ImageField(
+        upload_to=hero_image_upload_path,
+        blank=True,
+        default="",
+        validators=[validate_image_max_5mb],
+    )
     is_trending = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     metadata = models.JSONField(default=dict)

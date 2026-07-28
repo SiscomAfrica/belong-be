@@ -22,6 +22,7 @@ dependencies = [
     "django-storages[s3]>=1.14",
     "httpx>=0.27",
     "weasyprint>=62.0",
+    "Pillow>=10.0",
 ]
 
 [project.optional-dependencies]
@@ -35,6 +36,9 @@ dev = [
     "django-stubs>=5.0",
     "django-extensions>=3.2",
 ]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
 
 [tool.ruff]
 line-length = 99

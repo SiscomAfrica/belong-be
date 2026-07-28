@@ -7,3 +7,6 @@ class FundsConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "apps.funds"
     verbose_name = "Funds"
+
+    def ready(self) -> None:
+        import apps.funds.signals.sync_hero_image  # noqa: F401
