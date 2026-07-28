@@ -11,6 +11,8 @@ AWS_S3_REGION_NAME = env("AWS_REGION", default="us-east-1")
 AWS_STORAGE_BUCKET_NAME = env("AWS_BUCKET", default="")
 _s3_url = env("S3_URL", default="")
 AWS_S3_CUSTOM_DOMAIN = _s3_url.replace("https://", "").replace("http://", "").rstrip("/")
+AWS_DEFAULT_ACL = "public-read"
+AWS_QUERYSTRING_AUTH = False
 
 STORAGES = {
     "default": {
