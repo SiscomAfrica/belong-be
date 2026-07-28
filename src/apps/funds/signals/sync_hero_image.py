@@ -9,9 +9,9 @@ from apps.funds.models import Fund, Playlist
 @receiver(post_save, sender=Fund)
 @receiver(post_save, sender=Playlist)
 def sync_hero_image_url(sender, instance, **kwargs) -> None:  # noqa: ANN001, ANN003
-    if instance.hero_image and hasattr(instance.hero_image, "url"):
-        new_url = instance.hero_image.url
-        if instance.hero_image_url != new_url:
+    if instance.hero_image:
+        file_key = instance.hero_image.name
+        if instance.hero_image_url != file_key:
             sender.objects.filter(pk=instance.pk).update(
-                hero_image_url=new_url,
+                hero_image_url=file_key,
             )

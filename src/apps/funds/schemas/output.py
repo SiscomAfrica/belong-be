@@ -9,6 +9,8 @@ from uuid import UUID
 from ninja import Schema
 from pydantic import Field
 
+from apps.common.services.s3 import generate_presigned_download
+
 
 class FundOut(Schema):
     id: UUID = Field(description="Fund identifier")
@@ -25,6 +27,13 @@ class FundOut(Schema):
     hero_image_url: str = Field(description="Card hero image URL")
     is_trending: bool = Field(description="Whether fund is currently trending")
     is_active: bool = Field(description="Whether fund accepts new investments")
+
+    @staticmethod
+    def resolve_hero_image_url(obj: object) -> str:
+        key = getattr(obj, "hero_image_url", "")
+        if not key or key.startswith("http"):
+            return key or ""
+        return generate_presigned_download(file_key=key)["download_url"]
 
 
 class FundNAVOut(Schema):
