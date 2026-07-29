@@ -39,7 +39,15 @@ def process_mpesa_callback(*, payload: dict) -> None:
             txn.save(update_fields=["status", "provider_response", "completed_at", "updated_at"])
             credit_wallet(user_id=txn.user_id, amount=txn.amount, currency="KES")
             if txn.investment_id:
-                confirm_investment(investment_id=txn.investment_id)
+                from apps.investments.models import Investment, InvestmentStatus
+
+                inv_status = (
+                    Investment.objects.filter(id=txn.investment_id)
+                    .values_list("status", flat=True)
+                    .first()
+                )
+                if inv_status != InvestmentStatus.PENDING_KYC:
+                    confirm_investment(investment_id=txn.investment_id)
             action = AuditAction.PAYMENT_RECEIVED
         else:
             txn.status = PaymentStatus.FAILED
