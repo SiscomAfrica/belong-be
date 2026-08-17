@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 def check_wishlist_yield_changes() -> int:
     from apps.funds.models import FundNAV
     from apps.notifications.models import Notification, NotificationType
+    from apps.notifications.tasks import send_push_notification
     from apps.wishlist.models import WishlistItem
 
     fund_ids = (
@@ -51,8 +52,10 @@ def check_wishlist_yield_changes() -> int:
             )
             for uid in user_ids
         ]
-        Notification.objects.bulk_create(notifications)
-        alerts_sent += len(notifications)
+        created = Notification.objects.bulk_create(notifications)
+        for n in created:
+            send_push_notification.delay(str(n.id))
+        alerts_sent += len(created)
 
     logger.info("Sent %d yield alerts", alerts_sent)
     return alerts_sent

@@ -3,6 +3,7 @@ from __future__ import annotations
 from uuid import UUID
 
 from apps.notifications.models import Notification
+from apps.notifications.tasks import send_push_notification
 
 
 def create_notification(
@@ -14,7 +15,7 @@ def create_notification(
     action_url: str = "",
     metadata: dict | None = None,
 ) -> Notification:
-    return Notification.objects.create(
+    notification = Notification.objects.create(
         user_id=user_id,
         type=type,
         title=title,
@@ -22,3 +23,5 @@ def create_notification(
         action_url=action_url,
         metadata=metadata or {},
     )
+    send_push_notification.delay(str(notification.id))
+    return notification
