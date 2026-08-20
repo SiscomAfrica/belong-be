@@ -29,8 +29,12 @@ def save_personal_info(
         defaults={"status": KYCStatus.PENDING},
     )
 
-    if submission.status not in (KYCStatus.PENDING, KYCStatus.NOT_STARTED):
+    allowed = (KYCStatus.PENDING, KYCStatus.NOT_STARTED, KYCStatus.REJECTED)
+    if submission.status not in allowed:
         raise KYCInvalidStateError("Cannot update personal info after submission.")
+
+    if submission.status == KYCStatus.REJECTED:
+        submission.status = KYCStatus.PENDING
 
     submission.first_name = first_name
     submission.last_name = last_name
