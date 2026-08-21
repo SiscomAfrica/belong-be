@@ -13,6 +13,7 @@ from apps.users.schemas import (
 )
 from apps.users.selectors.get_user_devices import get_user_devices
 from apps.users.services.accept_terms import accept_terms
+from apps.users.services.mark_onboarded import mark_onboarded
 from apps.users.services.register_device import deactivate_device, register_device
 from apps.users.services.update_profile import update_profile
 
@@ -35,6 +36,12 @@ def update_me(request, payload: UserUpdateIn):  # noqa: ANN001, ANN201
 def accept(request, payload: TermsAcceptIn):  # noqa: ANN001, ANN201
     """Accept the current terms and conditions."""
     return accept_terms(user=request.auth, accepted=payload.accepted)
+
+
+@users_router.post("/me/onboard", response=UserOut)
+def onboard(request):  # noqa: ANN001, ANN201
+    """Mark the authenticated user as onboarded."""
+    return mark_onboarded(user=request.auth)
 
 
 @users_router.post("/me/devices", response={201: DeviceOut})
