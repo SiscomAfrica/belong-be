@@ -11,7 +11,6 @@ from apps.funds.selectors.get_latest_fund_nav import get_latest_fund_nav
 from apps.investments.exceptions import (
     BelowMinimumInvestmentError,
     FundNotActiveError,
-    NoNAVDataError,
 )
 from apps.investments.models import Investment, InvestmentStatus
 from apps.kyc.models import KYCStatus
@@ -43,17 +42,15 @@ def create_investment(
         raise BelowMinimumInvestmentError(str(fund.minimum_investment))
 
     nav = get_latest_fund_nav(fund_id=fund_id)
-    if nav is None:
-        raise NoNAVDataError()
-
-    units = amount / nav.nav_value
+    nav_value = nav.nav_value if nav else fund.minimum_investment
+    units = amount / nav_value
 
     investment = Investment.objects.create(
         user_id=user_id,
         fund_id=fund_id,
         amount=amount,
         units=units,
-        nav_at_purchase=nav.nav_value,
+        nav_at_purchase=nav_value,
         status=status,
         idempotency_key=idempotency_key,
     )
