@@ -64,7 +64,12 @@ def _resolve_domain(name: str) -> str:
 
 
 def _logo_url(name: str) -> str:
-    return f"https://logo.clearbit.com/{_resolve_domain(name)}"
+    domain = _resolve_domain(name)
+    return (
+        f"https://t0.gstatic.com/faviconV2?client=SOCIAL"
+        f"&type=FAVICON&fallback_opts=TYPE,SIZE,URL"
+        f"&url=http://{domain}&size=128"
+    )
 
 
 class Command(BaseCommand):

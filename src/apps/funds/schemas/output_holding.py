@@ -16,7 +16,10 @@ class FundHoldingOut(Schema):
 
     @staticmethod
     def resolve_logo_url(obj: object) -> str:
-        key = getattr(obj, "logo_url", "")
-        if not key or key.startswith("http"):
-            return key or ""
-        return generate_presigned_download(file_key=key)["download_url"]
+        image = getattr(obj, "logo_image", None)
+        if image and getattr(image, "name", ""):
+            return generate_presigned_download(file_key=image.name)["download_url"]
+        url = getattr(obj, "logo_url", "")
+        if not url or url.startswith("http"):
+            return url or ""
+        return generate_presigned_download(file_key=url)["download_url"]
