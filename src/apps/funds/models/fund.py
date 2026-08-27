@@ -50,7 +50,7 @@ class Fund(BaseModel):
     perfect_for = models.TextField(blank=True, default="")
     chart_url = models.URLField(max_length=500, blank=True, default="")
     emoji = models.CharField(max_length=10, blank=True, default="")
-    hero_image_url = models.URLField(blank=True, default="")
+    hero_image_url = models.CharField(max_length=500, blank=True, default="")
     hero_image = models.ImageField(
         upload_to=hero_image_upload_path,
         blank=True,

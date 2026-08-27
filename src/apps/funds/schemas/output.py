@@ -35,6 +35,9 @@ class FundOut(Schema):
 
     @staticmethod
     def resolve_hero_image_url(obj: object) -> str:
+        image = getattr(obj, "hero_image", None)
+        if image and getattr(image, "name", ""):
+            return generate_presigned_download(file_key=image.name)["download_url"]
         key = getattr(obj, "hero_image_url", "")
         if not key or key.startswith("http"):
             return key or ""
