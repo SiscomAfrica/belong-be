@@ -20,6 +20,7 @@ class FundOut(Schema):
     fund_type: str = Field(description="Fund type: ETF | FUND | ASSET")
     category: str = Field(description="Fund category for grouping")
     risk_level: int = Field(description="Risk level 1-5 (5 = highest)")
+    risk_level_display: str = Field(description="Human-readable risk label")
     currency: str = Field(description="Fund denomination currency (ISO 4217)")
     minimum_investment: Decimal = Field(description="Minimum investment amount")
     projected_annual_return: Decimal = Field(description="Projected annual return %")
@@ -27,6 +28,10 @@ class FundOut(Schema):
     hero_image_url: str = Field(description="Card hero image URL")
     is_trending: bool = Field(description="Whether fund is currently trending")
     is_active: bool = Field(description="Whether fund accepts new investments")
+
+    @staticmethod
+    def resolve_risk_level_display(obj: object) -> str:
+        return getattr(obj, "get_risk_level_display", lambda: "")()
 
     @staticmethod
     def resolve_hero_image_url(obj: object) -> str:
