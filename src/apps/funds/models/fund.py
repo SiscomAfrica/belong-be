@@ -19,6 +19,8 @@ class Fund(BaseModel):
     slug = models.SlugField(unique=True, db_index=True)
     ticker_symbol = models.CharField(max_length=10, blank=True, default="")
     description = models.TextField()
+    performance_description = models.TextField(blank=True, default="")
+    risk_description = models.TextField(blank=True, default="")
     fund_type = models.CharField(max_length=10, choices=FundType.choices)
     category = models.CharField(max_length=20, choices=FundCategory.choices)
     risk_level = models.IntegerField(choices=RiskLevel.choices)

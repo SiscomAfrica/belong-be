@@ -10,3 +10,4 @@ class FundsConfig(AppConfig):
 
     def ready(self) -> None:
         import apps.funds.signals.sync_hero_image  # noqa: F401
+        import apps.funds.signals.sync_holding_logo  # noqa: F401

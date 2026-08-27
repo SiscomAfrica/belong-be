@@ -9,10 +9,13 @@ from ninja import Schema
 from pydantic import Field
 
 from apps.funds.schemas.output import FundOut, FundPerformanceOut
+from apps.funds.schemas.output_holding import FundHoldingOut
 
 
 class FundDetailOut(FundOut):
     description: str = Field(description="Fund description")
+    performance_description: str = Field(description="Performance summary text")
+    risk_description: str = Field(description="Risk profile text")
     lock_in_days: int = Field(description="Minimum holding period in days")
     effective_annual_yield: Decimal = Field(description="Current effective annual yield")
     annualized_daily_yield: Decimal = Field(description="Daily yield annualized")
@@ -23,11 +26,16 @@ class FundDetailOut(FundOut):
     management_type: str = Field(description="PASSIVE | ACTIVE | RULES_BASED")
     listed_country: str = Field(description="Country where ETF is listed")
     fund_manager: str = Field(description="Fund manager name")
-    top_holdings: list[str] = Field(description="Top holdings list")
+    top_holdings: list[str] = Field(description="Top holdings list (legacy)")
+    holdings: list[FundHoldingOut] = Field(description="Top holdings with logos")
     perfect_for: str = Field(description="Ideal investor description")
     chart_url: str = Field(description="External performance chart URL")
     performances: list[FundPerformanceOut] = Field(description="Historical performance")
     created_at: datetime = Field(description="Fund creation timestamp")
+
+    @staticmethod
+    def resolve_holdings(obj):  # noqa: ANN001, ANN205
+        return obj.fund_holdings.all()
 
     @staticmethod
     def resolve_performances(obj):  # noqa: ANN001, ANN205

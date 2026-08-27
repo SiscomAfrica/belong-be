@@ -8,6 +8,10 @@ from apps.funds.models import Fund
 
 def get_fund(*, fund_id: UUID) -> Fund:
     try:
-        return Fund.objects.get(pk=fund_id)
+        return (
+            Fund.objects
+            .prefetch_related("fund_holdings", "performances")
+            .get(pk=fund_id)
+        )
     except Fund.DoesNotExist:
         raise NotFoundError("Fund not found")

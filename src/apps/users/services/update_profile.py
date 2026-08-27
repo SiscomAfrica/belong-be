@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from apps.common.tasks import convert_image_to_webp
 from apps.users.models import User
 
 
@@ -24,4 +25,12 @@ def update_profile(
         "first_name", "last_name", "preferred_currency",
         "profile_image_key", "updated_at",
     ])
+
+    if profile_image_key is not None:
+        convert_image_to_webp.delay(
+            profile_image_key,
+            user._meta.label,
+            str(user.pk),
+        )
+
     return user

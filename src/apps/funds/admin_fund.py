@@ -3,7 +3,8 @@ from __future__ import annotations
 from django.contrib import admin
 
 from apps.common.admin_mixins import HeroImageAdminMixin
-from apps.funds.models import Fund, FundNAV, FundPerformance
+from apps.funds.admin_holding import FundHoldingInline
+from apps.funds.models import Fund
 
 
 @admin.register(Fund)
@@ -18,6 +19,7 @@ class FundAdmin(HeroImageAdminMixin, admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     readonly_fields = ("hero_image_preview",)
     ordering = ("-created_at",)
+    inlines = [FundHoldingInline]
     fieldsets = (
         (None, {"fields": (
             "name", "slug", "ticker_symbol", "description",
@@ -31,6 +33,7 @@ class FundAdmin(HeroImageAdminMixin, admin.ModelAdmin):
         ("Details", {"fields": (
             "launched_date", "management_type", "listed_country",
             "fund_manager", "top_holdings", "perfect_for",
+            "performance_description", "risk_description",
         )}),
         ("Hero Image", {"fields": (
             "hero_image", "hero_image_url", "hero_image_preview",
@@ -39,22 +42,3 @@ class FundAdmin(HeroImageAdminMixin, admin.ModelAdmin):
             "chart_url", "emoji", "is_trending", "is_active", "metadata",
         )}),
     )
-
-
-@admin.register(FundNAV)
-class FundNAVAdmin(admin.ModelAdmin):
-    list_display = ("fund", "date", "nav_value", "daily_change_pct", "created_at")
-    search_fields = ("fund__name",)
-    list_filter = ("date",)
-    ordering = ("-date",)
-
-
-@admin.register(FundPerformance)
-class FundPerformanceAdmin(admin.ModelAdmin):
-    list_display = (
-        "fund", "period", "return_pct",
-        "start_value", "end_value", "calculated_at",
-    )
-    search_fields = ("fund__name",)
-    list_filter = ("period",)
-    ordering = ("-calculated_at",)

@@ -6,6 +6,7 @@ from apps.funds.models.enums import (
     RiskLevel,
 )
 from apps.funds.models.fund import Fund
+from apps.funds.models.fund_holding import FundHolding
 from apps.funds.models.fund_nav import FundNAV
 from apps.funds.models.fund_performance import FundPerformance
 from apps.funds.models.playlist import Playlist
@@ -15,6 +16,7 @@ __all__ = [
     "Currency",
     "Fund",
     "FundCategory",
+    "FundHolding",
     "FundNAV",
     "FundPerformance",
     "FundType",
