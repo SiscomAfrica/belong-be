@@ -3,20 +3,35 @@
     {
       "name": "Money On Repeat",
       "slug": "money-on-repeat",
-      "description": "These jams grow your deposit without putting it at risk. A balanced mix of dependable companies, broad market exposure, and long-term growth potential.",
+      "description": "The steadiest jams we offer. A dividend fund and a broad all-in-one stack, chosen to grow your deposit with the least movement along the way.",
       "funds": [
-        {"slug": "memory-lane", "returns_label": "YTD returns"},
-        {"slug": "sleeper-hits", "returns_label": "YTD returns"},
-        {"slug": "ai-rush", "returns_label": "YTD returns"}
+        {
+          "slug": "all-in-one-stack",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "stable-gains",
+          "returns_label": "YTD returns"
+        }
       ]
     },
     {
       "name": "First Drop",
       "slug": "first-drop",
-      "description": "Low risk, steady returns, and zero complexity. Designed for beginners who want to build confidence and let their money grow steadily without constantly watching the market.",
+      "description": "Steady foundations with a little more reach. Built for beginners who want their money growing without having to watch the market every day.",
       "funds": [
-        {"slug": "stable-gains", "returns_label": "YTD returns"},
-        {"slug": "all-in-one-stack", "returns_label": "YTD returns"}
+        {
+          "slug": "stable-gains",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "all-in-one-stack",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "digital-giants",
+          "returns_label": "YTD returns"
+        }
       ]
     },
     {
@@ -24,8 +39,14 @@
       "slug": "world-tour",
       "description": "Your money now lives on every continent. Diversifies across industries, countries, and global innovators while keeping your portfolio balanced.",
       "funds": [
-        {"slug": "digital-giants", "returns_label": "YTD returns"},
-        {"slug": "seoul-stack", "returns_label": "YTD returns"}
+        {
+          "slug": "digital-giants",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "seoul-stack",
+          "returns_label": "YTD returns"
+        }
       ]
     },
     {
@@ -33,16 +54,38 @@
       "slug": "big-moves",
       "description": "These are the companies building what comes next. Built for investors who are chasing innovation and are comfortable taking on more risk for greater growth potential.",
       "funds": [
-        {"slug": "ignite", "returns_label": "YTD returns"},
-        {"slug": "silicon-squad", "returns_label": "YTD returns"},
-        {"slug": "power-core", "returns_label": "YTD returns"}
+        {
+          "slug": "ignite",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "sleeper-hits",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "ai-rush",
+          "returns_label": "YTD returns"
+        }
       ]
     },
     {
       "name": "On The Rise",
       "slug": "on-the-rise",
       "description": "A savings account is losing you money. These jams are built to actually grow it.",
-      "funds": []
+      "funds": [
+        {
+          "slug": "memory-lane",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "silicon-squad",
+          "returns_label": "YTD returns"
+        },
+        {
+          "slug": "power-core",
+          "returns_label": "YTD returns"
+        }
+      ]
     }
   ],
   "profiles": [
@@ -52,9 +95,25 @@
       "slug": "steady",
       "accent": "investor.",
       "badge_label": "STEADY UNLOCK",
-      "description": "You believe wealth isn't built in a day \u2014 it's built every day. With consistent, disciplined contributions, you're stacking progress one step at a time, turning small habits into something significant.",
+      "description": "You believe wealth isn't built in a day — it's built every day. With consistent, disciplined contributions, you're stacking progress one step at a time, turning small habits into something significant.",
       "playlist_slug": "money-on-repeat",
-      "position": 0
+      "position": 0,
+      "centroid": {
+        "risk": 1,
+        "horizon": 2,
+        "involvement": 1,
+        "mindset": 1
+      },
+      "risk_band": [
+        1,
+        2
+      ],
+      "category_weights": {
+        "BONDS": 1.0,
+        "DIVERSIFIED": 0.8,
+        "DIVIDEND": 0.7
+      },
+      "max_funds": 3
     },
     {
       "investor_type": "MODERATE",
@@ -64,7 +123,24 @@
       "badge_label": "ACHIEVER UNLOCK",
       "description": "You prefer steady progress over constant market noise. By investing steadily and staying patient, you let your money grow quietly in the background while you focus on living your life.",
       "playlist_slug": "first-drop",
-      "position": 1
+      "position": 1,
+      "centroid": {
+        "risk": 2,
+        "horizon": 3,
+        "involvement": 2,
+        "mindset": 3
+      },
+      "risk_band": [
+        1,
+        3
+      ],
+      "category_weights": {
+        "DIVERSIFIED": 1.0,
+        "DIVIDEND": 0.8,
+        "BONDS": 0.5,
+        "TECH": 0.2
+      },
+      "max_funds": 3
     },
     {
       "investor_type": "INTERMEDIATE",
@@ -74,7 +150,23 @@
       "badge_label": "GLOBAL UNLOCK",
       "description": "You don't bet on one market when the whole world is open to you. By spreading your investments across global opportunities, you capture growth wherever it happens.",
       "playlist_slug": "world-tour",
-      "position": 2
+      "position": 2,
+      "centroid": {
+        "risk": 3,
+        "horizon": 4,
+        "involvement": 3,
+        "mindset": 3
+      },
+      "risk_band": [
+        2,
+        4
+      ],
+      "category_weights": {
+        "DIVERSIFIED": 0.9,
+        "TECH": 0.8,
+        "DIVIDEND": 0.5
+      },
+      "max_funds": 3
     },
     {
       "investor_type": "AGGRESSIVE",
@@ -82,9 +174,25 @@
       "slug": "wealth",
       "accent": "investor.",
       "badge_label": "WEALTH UNLOCK",
-      "description": "You've got momentum and you intend to keep it. By putting your money to work in assets built for growth, you're not just growing wealth \u2014 you're building the kind of financial life that opens doors.",
+      "description": "You've got momentum and you intend to keep it. By putting your money to work in assets built for growth, you're not just growing wealth — you're building the kind of financial life that opens doors.",
       "playlist_slug": "on-the-rise",
-      "position": 3
+      "position": 3,
+      "centroid": {
+        "risk": 4,
+        "horizon": 4,
+        "involvement": 3,
+        "mindset": 4
+      },
+      "risk_band": [
+        3,
+        5
+      ],
+      "category_weights": {
+        "TECH": 1.0,
+        "SEMICONDUCTOR": 0.9,
+        "DIVERSIFIED": 0.3
+      },
+      "max_funds": 3
     },
     {
       "investor_type": "HIGH_RISK",
@@ -94,7 +202,23 @@
       "badge_label": "GROWTH UNLOCK",
       "description": "You're not here to play it safe. You chase the opportunities others hesitate at, knowing that the biggest rewards come to those bold enough to move.",
       "playlist_slug": "big-moves",
-      "position": 4
+      "position": 4,
+      "centroid": {
+        "risk": 5,
+        "horizon": 5,
+        "involvement": 4,
+        "mindset": 5
+      },
+      "risk_band": [
+        4,
+        5
+      ],
+      "category_weights": {
+        "SEMICONDUCTOR": 1.0,
+        "TECH": 0.8,
+        "CRYPTO": 0.6
+      },
+      "max_funds": 3
     }
   ]
 }

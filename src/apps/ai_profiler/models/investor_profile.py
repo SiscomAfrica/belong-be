@@ -27,6 +27,16 @@ class InvestorProfile(BaseModel):
     )
     investment_goal = models.TextField(blank=True, default="")
     interests = models.JSONField(default=list)
+    behaviour_vector = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Resolved anchor per behaviour — the input the profile match was made from",
+    )
+    imputed_behaviours = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="Behaviours filled with the population median rather than measured",
+    )
     recommended_fund = models.ForeignKey(
         "funds.Fund",
         on_delete=models.SET_NULL,

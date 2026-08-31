@@ -73,6 +73,10 @@ class Command(BaseCommand):
                     "description": entry["description"],
                     "playlist": playlist,
                     "position": entry.get("position", 0),
+                    "centroid": entry.get("centroid", {}),
+                    "risk_band": entry.get("risk_band", []),
+                    "category_weights": entry.get("category_weights", {}),
+                    "max_funds": entry.get("max_funds", 3),
                 },
             )
             self.stdout.write(f"  Template: {entry['name']}")

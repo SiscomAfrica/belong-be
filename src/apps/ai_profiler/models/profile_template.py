@@ -25,7 +25,24 @@ class ProfileTemplate(BaseModel):
         null=True,
         blank=True,
         related_name="profile_templates",
+        help_text="Materialised cache of the funds matching this profile's criteria",
     )
+    centroid = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Target anchor per ordinal behaviour; matching is nearest centroid",
+    )
+    risk_band = models.JSONField(
+        default=list,
+        blank=True,
+        help_text="[min, max] Fund.risk_level this profile may be recommended",
+    )
+    category_weights = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Fund category to weight, used to rank within the risk band",
+    )
+    max_funds = models.PositiveSmallIntegerField(default=3)
     is_active = models.BooleanField(default=True)
     position = models.PositiveIntegerField(default=0)
 

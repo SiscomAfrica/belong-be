@@ -1,0 +1,363 @@
+{
+  "questions": [
+    {
+      "primary_behaviour": "motivation",
+      "secondary_behaviours": [
+        "horizon"
+      ],
+      "question": "What's pulling you toward investing right now?",
+      "subtitle": "There's no wrong answer — this helps us understand what matters to you.",
+      "options": [
+        {
+          "label": "I'd like to stop renting and own my home",
+          "sublabel": "A goal two to seven years out",
+          "anchors": [
+            {
+              "behaviour": "motivation",
+              "value": "MILESTONE"
+            },
+            {
+              "behaviour": "horizon",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "label": "I'd like to retire on my own terms",
+          "sublabel": "A goal ten or more years out",
+          "anchors": [
+            {
+              "behaviour": "motivation",
+              "value": "FREEDOM"
+            },
+            {
+              "behaviour": "horizon",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "I want my money growing faster than in savings",
+          "sublabel": "Building wealth over time",
+          "anchors": [
+            {
+              "behaviour": "motivation",
+              "value": "WEALTH"
+            },
+            {
+              "behaviour": "horizon",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "I want holdings that pay out regularly",
+          "sublabel": "Income while you hold",
+          "anchors": [
+            {
+              "behaviour": "motivation",
+              "value": "INCOME"
+            },
+            {
+              "behaviour": "horizon",
+              "value": "2"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "primary_behaviour": "risk",
+      "secondary_behaviours": [
+        "mindset"
+      ],
+      "question": "Your portfolio drops sharply over a bad month. How does that sit?",
+      "subtitle": "Markets move both ways. Your answer shapes how we balance safety and growth.",
+      "options": [
+        {
+          "label": "Very stressed — I'd lose sleep over it",
+          "sublabel": "Stability matters more than upside",
+          "anchors": [
+            {
+              "behaviour": "risk",
+              "value": "1"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "label": "Uncomfortable, but I'd wait it out",
+          "sublabel": "A balanced approach suits you",
+          "anchors": [
+            {
+              "behaviour": "risk",
+              "value": "2"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "label": "Fine — it tends to recover",
+          "sublabel": "You can sit through the swings",
+          "anchors": [
+            {
+              "behaviour": "risk",
+              "value": "4"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "Tempted — I'd put more in at that price",
+          "sublabel": "You're at home with volatility",
+          "anchors": [
+            {
+              "behaviour": "risk",
+              "value": "5"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "primary_behaviour": "horizon",
+      "secondary_behaviours": [],
+      "question": "When do you expect to use this money?",
+      "subtitle": "This sets how much short-term movement we can afford to ride out.",
+      "options": [
+        {
+          "label": "Within the next year or so",
+          "sublabel": "We'll keep things steady",
+          "anchors": [
+            {
+              "behaviour": "horizon",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "label": "In about three to seven years",
+          "sublabel": "Room for moderate growth",
+          "anchors": [
+            {
+              "behaviour": "horizon",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "label": "More than ten years from now",
+          "sublabel": "Time is on your side",
+          "anchors": [
+            {
+              "behaviour": "horizon",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "No fixed date — I'm building for the long run",
+          "sublabel": "Maximum compounding",
+          "anchors": [
+            {
+              "behaviour": "horizon",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "primary_behaviour": "market",
+      "secondary_behaviours": [
+        "involvement",
+        "mindset"
+      ],
+      "question": "Which of these sounds most like you?",
+      "subtitle": "Go with your gut — this tells us how hands-on you want to be.",
+      "options": [
+        {
+          "label": "Set it and forget it",
+          "sublabel": "Broad, all-in-one holdings",
+          "anchors": [
+            {
+              "behaviour": "market",
+              "value": "DIVERSIFIED"
+            },
+            {
+              "behaviour": "involvement",
+              "value": "1"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "label": "I want exposure beyond one country",
+          "sublabel": "Global and international",
+          "anchors": [
+            {
+              "behaviour": "market",
+              "value": "GLOBAL"
+            },
+            {
+              "behaviour": "involvement",
+              "value": "3"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "I'm drawn to tech and AI",
+          "sublabel": "Thematic and sector holdings",
+          "anchors": [
+            {
+              "behaviour": "market",
+              "value": "TECH"
+            },
+            {
+              "behaviour": "involvement",
+              "value": "4"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "5"
+            }
+          ]
+        },
+        {
+          "label": "Slow and steady — protect what I have",
+          "sublabel": "Defensive holdings",
+          "anchors": [
+            {
+              "behaviour": "market",
+              "value": "DEFENSIVE"
+            },
+            {
+              "behaviour": "involvement",
+              "value": "2"
+            },
+            {
+              "behaviour": "mindset",
+              "value": "1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "primary_behaviour": "involvement",
+      "secondary_behaviours": [],
+      "question": "How involved do you want to be day to day?",
+      "subtitle": "Some people like to watch closely. Others would rather not think about it.",
+      "options": [
+        {
+          "label": "Set it up once and leave it alone",
+          "sublabel": "We handle it from there",
+          "anchors": [
+            {
+              "behaviour": "involvement",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "label": "A quick look now and then",
+          "sublabel": "Occasional check-ins, no decisions",
+          "anchors": [
+            {
+              "behaviour": "involvement",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "label": "I'll look in and adjust sometimes",
+          "sublabel": "Hands on when it matters",
+          "anchors": [
+            {
+              "behaviour": "involvement",
+              "value": "3"
+            }
+          ]
+        },
+        {
+          "label": "I want to be in the driving seat",
+          "sublabel": "Frequent, hands-on decisions",
+          "anchors": [
+            {
+              "behaviour": "involvement",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "primary_behaviour": "mindset",
+      "secondary_behaviours": [],
+      "question": "What matters most for this money?",
+      "subtitle": "There's a trade-off here, and your answer tells us where you sit on it.",
+      "options": [
+        {
+          "label": "Protecting what I already have",
+          "sublabel": "Keeping it intact comes first",
+          "anchors": [
+            {
+              "behaviour": "mindset",
+              "value": "1"
+            }
+          ]
+        },
+        {
+          "label": "Steady progress without surprises",
+          "sublabel": "Growth, but gently",
+          "anchors": [
+            {
+              "behaviour": "mindset",
+              "value": "2"
+            }
+          ]
+        },
+        {
+          "label": "Growing it, even with ups and downs",
+          "sublabel": "You'll ride out the dips",
+          "anchors": [
+            {
+              "behaviour": "mindset",
+              "value": "4"
+            }
+          ]
+        },
+        {
+          "label": "The biggest long-term result possible",
+          "sublabel": "Growth above all else",
+          "anchors": [
+            {
+              "behaviour": "mindset",
+              "value": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,7 @@ from ninja_jwt.routers.obtain import obtain_pair_router
 from ninja_jwt.routers.verify import verify_router
 
 from apps.ai_profiler.api import profiler_router
+from apps.ai_profiler.api_questions import questions_router
 from apps.authentication.api import auth_router
 from apps.common.api import health_router
 from apps.common.api_uploads import uploads_router
@@ -64,6 +65,7 @@ api.add_router("/recurring-plans", plans_router, tags=["recurring-plans"])
 api.add_router("/investment-goals", goals_router, tags=["investment-goals"])
 api.add_router("/wallet", wallet_router, tags=["wallet"])
 api.add_router("/ai-profiler", profiler_router, tags=["ai-profiler"])
+api.add_router("/ai-profiler", questions_router, tags=["ai-profiler"])
 api.add_router("/playlists", playlists_router, tags=["playlists"])
 api.add_router("/referrals", referrals_router, tags=["referrals"])
 api.add_router("/compliance", compliance_router, tags=["compliance"])

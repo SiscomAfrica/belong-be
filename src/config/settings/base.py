@@ -57,8 +57,12 @@ DATABASES = {
         default="postgres://belong:belong@localhost:5432/belong",
     ),
 }
-DATABASES["default"]["OPTIONS"] = {"pool": {"min_size": 2, "max_size": 4}}
-DATABASES["default"].update(CONN_MAX_AGE=0, CONN_HEALTH_CHECKS=True)
+# Connection pooling is a psycopg option. Setting it unconditionally makes the
+# project unrunnable on any other engine — including the sqlite URL used for
+# makemigrations and local test runs.
+if "postgresql" in DATABASES["default"]["ENGINE"]:
+    DATABASES["default"]["OPTIONS"] = {"pool": {"min_size": 2, "max_size": 4}}
+    DATABASES["default"].update(CONN_MAX_AGE=0, CONN_HEALTH_CHECKS=True)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE, TIME_ZONE = "en-us", "Africa/Nairobi"
