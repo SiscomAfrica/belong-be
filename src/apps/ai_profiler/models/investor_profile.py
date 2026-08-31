@@ -12,6 +12,11 @@ class TimeHorizon(models.TextChoices):
     LONG = "LONG", "Long Term"
 
 
+class ScoringMethod(models.TextChoices):
+    RUBRIC = "RUBRIC", "Anchored rubric"
+    LEGACY = "LEGACY", "Legacy keyword scorer"
+
+
 class InvestorProfile(BaseModel):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -36,6 +41,13 @@ class InvestorProfile(BaseModel):
         default=list,
         blank=True,
         help_text="Behaviours filled with the population median rather than measured",
+    )
+    scoring_method = models.CharField(
+        max_length=10,
+        choices=ScoringMethod.choices,
+        default=ScoringMethod.RUBRIC,
+        db_index=True,
+        help_text="How this profile was derived; LEGACY rows are re-profilable",
     )
     recommended_fund = models.ForeignKey(
         "funds.Fund",

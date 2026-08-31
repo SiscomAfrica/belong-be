@@ -216,7 +216,18 @@ docker compose -f docker-compose.prod.yml logs -f
 docker compose -f docker-compose.prod.yml exec api python manage.py migrate
 docker compose -f docker-compose.prod.yml exec api python manage.py seed_funds
 docker compose -f docker-compose.prod.yml exec api python manage.py seed_compliance
+docker compose -f docker-compose.prod.yml exec api python manage.py seed_profiles
+docker compose -f docker-compose.prod.yml exec api python manage.py sync_playlists
 ```
+
+`seed_profiles` loads the investor-profile centroids and fund-selection
+criteria. Profile matching has no candidates until it has run, so completing
+onboarding returns a 500 in the gap — treat it as part of the release, not a
+follow-up task.
+
+`sync_playlists` composes each profile's playlist from its criteria and the
+current fund catalogue. Re-run it whenever funds are added or their risk level
+or category changes; nothing else picks those up.
 
 ### 3e. Verify the API is running
 
@@ -395,9 +406,23 @@ docker compose -f docker-compose.prod.yml logs -f celery-worker
 ```bash
 cd /home/ubuntu/belong-backend
 git pull origin main
+make prod-release
+```
+
+`make prod-release` builds, brings up Postgres and Redis, runs migrate and the
+seeders on a throwaway container, and only then swaps the API over. Running
+`up -d` before the seeders would put the new code in front of traffic without
+the data it depends on.
+
+The equivalent by hand:
+
+```bash
 docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.prod.yml up -d postgres redis
+docker compose -f docker-compose.prod.yml run --rm api python manage.py migrate
+docker compose -f docker-compose.prod.yml run --rm api python manage.py seed_profiles
+docker compose -f docker-compose.prod.yml run --rm api python manage.py sync_playlists
 docker compose -f docker-compose.prod.yml up -d
-docker compose -f docker-compose.prod.yml exec api python manage.py migrate
 ```
 
 ### Restart a service
