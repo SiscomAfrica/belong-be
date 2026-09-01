@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 from django.db import transaction
-from django.utils import timezone
 
 from apps.audit.models import AuditAction
 from apps.audit.services import create_audit_log
-from apps.investments.services.cancel_investment import cancel_investment
-from apps.investments.services.confirm_investment import confirm_investment
 from apps.payments.exceptions import InvalidCallbackError
 from apps.payments.models import PaymentStatus, PaymentTransaction
 from apps.payments.providers.paystack import PaystackProvider
+from apps.payments.services.settle_payment import (
+    settle_failed_payment,
+    settle_successful_payment,
+)
 
 
 def process_paystack_webhook(*, payload: dict, signature: str, body: bytes) -> None:
@@ -37,22 +38,12 @@ def process_paystack_webhook(*, payload: dict, signature: str, body: bytes) -> N
             return
 
         txn.provider_response = result.raw_data
-        txn.completed_at = timezone.now()
 
         if result.success:
-            txn.status = PaymentStatus.SUCCESS
-            txn.save(update_fields=["status", "provider_response", "completed_at", "updated_at"])
-            if txn.investment_id:
-                confirm_investment(investment_id=txn.investment_id)
+            settle_successful_payment(txn=txn)
             action = AuditAction.PAYMENT_RECEIVED
         else:
-            txn.status = PaymentStatus.FAILED
-            txn.failure_reason = result.failure_reason
-            txn.save(update_fields=[
-                "status", "failure_reason", "provider_response", "completed_at", "updated_at",
-            ])
-            if txn.investment_id:
-                cancel_investment(investment_id=txn.investment_id, user_id=txn.user_id)
+            settle_failed_payment(txn=txn, reason=result.failure_reason)
             action = AuditAction.PAYMENT_FAILED
 
     create_audit_log(

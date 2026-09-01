@@ -69,8 +69,12 @@ services:
     restart: unless-stopped
     command: >
       redis-server
-      --maxmemory 64mb
-      --maxmemory-policy allkeys-lru
+      --maxmemory 128mb
+      # volatile-lru, not allkeys-lru: this instance is the Celery broker as
+      # well as the Django cache. Broker messages carry no TTL, so allkeys-lru
+      # could evict queued tasks under memory pressure and drop them silently.
+      # volatile-lru only evicts keys that expire — throttle counters, not work.
+      --maxmemory-policy volatile-lru
       --save ""
       --appendonly no
     volumes:

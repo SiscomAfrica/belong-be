@@ -103,6 +103,7 @@ NINJA_JWT = {
 }
 
 from config.settings.base_celery import *  # noqa: E402, F401, F403
+from config.settings.base_throttle import *  # noqa: E402, F401, F403
 from config.settings.base_logging import *  # noqa: E402, F401, F403
 from config.settings.base_payments import *  # noqa: E402, F401, F403
 from config.settings.base_kyc import *  # noqa: E402, F401, F403

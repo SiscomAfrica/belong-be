@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from django.conf import settings
 from ninja import Router
+from ninja.throttling import AnonRateThrottle
 
 from apps.authentication.schemas import (
     AuthTokenOut,
@@ -22,7 +24,12 @@ from apps.authentication.services.verify_otp import verify_otp
 from apps.authentication.services.verify_pin import verify_pin
 from apps.users.schemas import UserOut
 
-auth_router = Router(tags=["auth"])
+# OTP send and login are unauthenticated, and each OTP costs an SMS. This is
+# the cheapest endpoint in the system to abuse, so it gets the tightest limit.
+auth_router = Router(
+    tags=["auth"],
+    throttle=[AnonRateThrottle(settings.THROTTLE_AUTH)],
+)
 
 
 @auth_router.post("/register", response={201: AuthTokenOut}, auth=None)

@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from apps.audit.models.audit_log import AuditAction
 from apps.audit.services.create_audit_log import create_audit_log
+from apps.common.observability import report_exception
 from apps.investments.models import Investment, InvestmentStatus
 from apps.investments.services.update_holding import update_holding
 
@@ -51,4 +52,10 @@ def _try_convert_referral(*, user_id) -> None:
 
         check_and_convert_referral(user_id=user_id)
     except Exception:
-        logger.warning("Referral conversion check failed for user %s", user_id)
+        # The investment is already committed; a referral credit failing must
+        # not undo it. Non-fatal by design, but still needs reporting.
+        report_exception(
+            message="Referral conversion failed after investment confirmed",
+            logger_=logger,
+            user_id=user_id,
+        )

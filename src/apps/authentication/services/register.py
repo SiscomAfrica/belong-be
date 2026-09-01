@@ -7,6 +7,7 @@ from ninja_jwt.tokens import RefreshToken
 from apps.authentication.services.set_pin import set_pin
 from apps.authentication.services.verify_otp import verify_otp
 from apps.common.exceptions import ConflictError
+from apps.common.observability import report_exception
 from apps.users.selectors.get_user_by_phone import get_user_by_phone
 from apps.users.services.create_user import create_user
 
@@ -40,4 +41,9 @@ def _try_create_referral(*, referrer_code: str, user_id) -> None:
 
         create_referral(referrer_code=referrer_code, referred_user_id=user_id)
     except Exception:
-        logger.warning("Failed to create referral for code %s", referrer_code)
+        # Registration has succeeded; a bad referral code must not block it.
+        report_exception(
+            message="Referral creation failed during registration",
+            logger_=logger,
+            referrer_code=referrer_code,
+        )

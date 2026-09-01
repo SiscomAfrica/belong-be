@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import logging
-from datetime import date
 
 from celery import shared_task
+from django.utils import timezone
 
+from apps.common.observability import report_exception
 from apps.investments.services.create_recurring_plan import FREQUENCY_OFFSETS
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,10 @@ def execute_due_recurring_plans() -> int:
     from apps.investments.services.create_investment import create_investment
     from apps.notifications.models import Notification, NotificationType
 
-    today = date.today()
+    # localdate(), not date.today(): the container runs UTC while the project
+    # is Africa/Nairobi (UTC+3), so a naive today() can be a day behind and
+    # skip plans that are due.
+    today = timezone.localdate()
     plans = RecurringPlan.objects.filter(
         is_active=True, next_run_date__lte=today
     ).select_related("fund")
@@ -41,7 +45,14 @@ def execute_due_recurring_plans() -> int:
             plan.save(update_fields=["next_run_date", "updated_at"])
             executed += 1
         except Exception:
-            logger.exception("Failed recurring plan %s", plan.id)
+            # One bad plan must not stop the rest of the run, but a recurring
+            # investment silently not executing is exactly the sort of failure
+            # a user only notices months later.
+            report_exception(
+                message="Recurring plan execution failed",
+                logger_=logger,
+                plan_id=plan.id,
+            )
 
     logger.info("Executed %d recurring plans", executed)
     return executed

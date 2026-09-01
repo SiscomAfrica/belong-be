@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from uuid import UUID
 
+from django.conf import settings
 from ninja import Query, Router
+from ninja.throttling import AuthRateThrottle
 
 from apps.payments.schemas import (
     PaymentInitiateIn,
@@ -14,7 +16,10 @@ from apps.payments.selectors.get_payment_transaction import get_payment_transact
 from apps.payments.selectors.list_user_payments import list_user_payments
 from apps.payments.services.initiate_payment import initiate_payment
 
-payments_router = Router(tags=["payments"])
+payments_router = Router(
+    tags=["payments"],
+    throttle=[AuthRateThrottle(settings.THROTTLE_PAYMENTS)],
+)
 
 
 @payments_router.post("/initiate/", response={201: PaymentInitiateOut})

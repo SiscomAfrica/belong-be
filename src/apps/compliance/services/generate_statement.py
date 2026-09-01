@@ -3,7 +3,6 @@ from __future__ import annotations
 from uuid import UUID
 
 from django.template.loader import render_to_string
-from weasyprint import HTML
 
 from apps.investments.models import Holding, Investment, InvestmentStatus
 from apps.payments.models import PaymentTransaction
@@ -38,4 +37,10 @@ def generate_statement(*, user_id: UUID, year: int, month: int) -> bytes:
     }
 
     html_string = render_to_string("compliance/statement.html", context)
+    # Imported here rather than at module scope: WeasyPrint parses its default
+    # stylesheets on import, which every Django and Celery process was paying at
+    # boot for a feature almost no request touches. The API container is capped
+    # at 512 MB, so the resident cost matters as much as the startup time.
+    from weasyprint import HTML
+
     return HTML(string=html_string).write_pdf()

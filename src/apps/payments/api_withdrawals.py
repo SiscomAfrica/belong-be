@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+from django.conf import settings
 from ninja import Query, Router
+from ninja.throttling import AuthRateThrottle
 
 from apps.payments.schemas import (
     WithdrawalCreateIn,
@@ -10,7 +12,10 @@ from apps.payments.schemas import (
 from apps.payments.selectors.list_withdrawal_requests import list_withdrawal_requests
 from apps.payments.services.create_withdrawal_request import create_withdrawal_request
 
-withdrawals_router = Router(tags=["withdrawals"])
+withdrawals_router = Router(
+    tags=["withdrawals"],
+    throttle=[AuthRateThrottle(settings.THROTTLE_PAYMENTS)],
+)
 
 
 @withdrawals_router.post("/", response={201: WithdrawalOut})

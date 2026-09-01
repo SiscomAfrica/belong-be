@@ -1,6 +1,7 @@
 x-common-env: &common-env
   DATABASE_URL: postgres://belong:belong@postgres:5432/belong
   REDIS_URL: redis://redis:6379/0
+  CACHE_URL: redis://redis:6379/3
   CELERY_BROKER_URL: redis://redis:6379/1
   CELERY_RESULT_BACKEND: redis://redis:6379/2
   DJANGO_ENV: local
@@ -62,7 +63,7 @@ services:
     command: >
       redis-server
       --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
+      --maxmemory-policy volatile-lru
     volumes:
       - redis_data:/data
     healthcheck:

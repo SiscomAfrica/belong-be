@@ -15,8 +15,6 @@ from apps.common.api import health_router
 from apps.common.api_uploads import uploads_router
 from apps.common.exceptions import AppError
 from apps.common.schemas import ErrorOut
-from config.api_description import API_DESCRIPTION
-from config.redoc_view import redoc_view
 from apps.compliance.api import compliance_router
 from apps.feed.api import feed_router
 from apps.funds.api import funds_router
@@ -37,12 +35,16 @@ from apps.referrals.api import referrals_router
 from apps.simulation.api import simulation_router
 from apps.users.api import users_router
 from apps.wishlist.api import wishlist_router
+from config.api_description import API_DESCRIPTION
+from config.redoc_view import redoc_view
+from config.throttles import default_throttles
 
 api = NinjaAPI(
     title="Belong API",
     version="1.0.0",
     auth=JWTAuth(),
     description=API_DESCRIPTION,
+    throttle=default_throttles(),
 )
 
 api.add_router("/health", health_router, tags=["health"])

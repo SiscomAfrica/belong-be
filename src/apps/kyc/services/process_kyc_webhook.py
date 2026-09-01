@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from apps.audit.models import AuditAction
 from apps.audit.services.create_audit_log import create_audit_log
+from apps.common.observability import report_exception
 from apps.kyc.models import KYCStatus, KYCSubmission, KYCWebhookLog
 from apps.kyc.providers.smile_identity import SmileIdentityProvider
 from apps.notifications.services.create_notification import create_notification
@@ -66,13 +67,23 @@ def process_kyc_webhook(*, payload: dict) -> None:
         _try_convert_referral(user_id=submission.user_id)
 
 
-def _try_activate_investments(*, user_id) -> None:  # noqa: ANN001
+def _try_activate_investments(*, user_id) -> None:
     try:
-        from apps.investments.services.activate_pending_investments import activate_pending_investments
+        from apps.investments.services.activate_pending_investments import (
+            activate_pending_investments,
+        )
 
         activate_pending_investments(user_id=user_id)
     except Exception:
-        logger.warning("Investment activation failed for user %s", user_id)
+        # KYC has already been marked verified, so re-raising would fail the
+        # webhook and make the provider retry a step that already succeeded.
+        # The user is left with investments stuck in PENDING_KYC though, which
+        # is money not working — this needs to reach someone, not a log file.
+        report_exception(
+            message="Investment activation failed after KYC verification",
+            logger_=logger,
+            user_id=user_id,
+        )
 
 
 def _try_convert_referral(*, user_id) -> None:
@@ -81,4 +92,8 @@ def _try_convert_referral(*, user_id) -> None:
 
         check_and_convert_referral(user_id=user_id)
     except Exception:
-        logger.warning("Referral conversion check failed for user %s", user_id)
+        report_exception(
+            message="Referral conversion failed after KYC verification",
+            logger_=logger,
+            user_id=user_id,
+        )
