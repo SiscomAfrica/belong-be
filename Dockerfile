@@ -64,7 +64,11 @@ WORKDIR /app/src
 # Smoke test on its own line, with no `|| true` to swallow it. This is what
 # catches a venv built against an interpreter the final stage never received —
 # a failure that would otherwise surface only when the container starts.
-RUN python -c "import django, ninja, celery; print(django.get_version())"
+#
+# Only packages that import without Django settings configured belong here.
+# `ninja` does not: ninja/conf.py reads settings at import time, so it fails
+# outside a configured app and would flag a healthy image as broken.
+RUN python -c "import django, celery, httpx, redis; print(django.get_version())"
 
 # collectstatic may legitimately fail (no database, no real settings), so it
 # stays non-fatal — but as a separate step, so it cannot mask the check above.
