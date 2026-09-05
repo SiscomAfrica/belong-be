@@ -4,12 +4,14 @@ import logging
 
 from celery import shared_task
 
-from apps.common.services.image_variants import VARIANT_WIDTHS, resize_to_webp, variant_key
-from apps.common.services.s3_objects import (
-    catalogue_storage,
-    download_bytes,
-    upload_bytes,
+from apps.common.services.image_variants import (
+    VARIANT_WIDTHS,
+    resize_to_webp,
+    variant_key,
 )
+from apps.common.services.media_routing import is_public
+from apps.common.services.s3_objects import download_bytes, storage_for, upload_bytes
+from apps.common.services.source_image import cap_source_image
 
 logger = logging.getLogger(__name__)
 
@@ -31,21 +33,44 @@ def generate_image_variants(
     model_label: str = "",
     pk: str = "",
 ) -> list[str]:
-    """Pre-render every size the app renders, once, at upload time.
+    """Cap an upload to a sane size, then pre-render the sizes the app renders.
 
-    The app asks for a specific width by key, so these have to exist before the
-    URL is handed out. Idempotent: re-running overwrites in place, which is
-    what makes both the Celery retry and the backfill command safe.
+    The app asks for a specific width by key, so the variants have to exist
+    before the URL is handed out. Idempotent throughout: re-running overwrites
+    in place and skips work already done, which is what makes both the Celery
+    retry and the backfill command safe to run repeatedly.
     """
     if "__" in original_key.rsplit("/", 1)[-1]:
         # Already a generated variant. Guards against a signal firing on a save
         # that was itself triggered by this task.
         return []
 
-    # Catalogue art lives in the public bucket, not the default (private) one,
-    # so both ends of the round trip have to be pointed at it.
-    storage = catalogue_storage()
+    # Public art and private uploads live in different buckets, addressed by
+    # different clients; reading one through the other looks like a 404.
+    storage = storage_for(original_key)
     source = download_bytes(key=original_key, storage=storage)
+
+    capped = cap_source_image(image_bytes=source)
+    if capped is not None:
+        upload_bytes(
+            key=original_key,
+            data=capped,
+            content_type=_content_type_for(original_key),
+            storage=storage,
+        )
+        logger.info(
+            "Capped oversized source image",
+            extra={
+                "model": model_label, "pk": pk, "key": original_key,
+                "was_bytes": len(source), "now_bytes": len(capped),
+            },
+        )
+        source = capped
+
+    if not is_public(original_key):
+        # Only public art is served by derived variant URL. Generating them for
+        # a private upload would write files nothing ever requests.
+        return []
 
     written: list[str] = []
     for name, width in VARIANT_WIDTHS.items():
@@ -63,3 +88,12 @@ def generate_image_variants(
         )
 
     return written
+
+
+def _content_type_for(key: str) -> str:
+    suffix = key.rsplit(".", 1)[-1].lower()
+    return {
+        "png": "image/png",
+        "webp": "image/webp",
+        "gif": "image/gif",
+    }.get(suffix, "image/jpeg")

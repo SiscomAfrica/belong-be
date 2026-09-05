@@ -7,7 +7,26 @@ import boto3
 from botocore.config import Config
 from django.conf import settings
 
-from apps.common.services.media_routing import bucket_for, is_public, public_media_url
+from apps.common.exceptions import ValidationError
+from apps.common.services.media_routing import (
+    UPLOAD_FOLDERS,
+    bucket_for,
+    is_public,
+    is_uploadable,
+    public_media_url,
+)
+
+
+def _client_config() -> Config:
+    configured = getattr(settings, "AWS_S3_CLIENT_CONFIG", None)
+    if configured is not None:
+        return configured
+    return Config(
+        signature_version="s3v4",
+        request_checksum_calculation="when_required",
+        response_checksum_validation="when_supported",
+    )
+
 
 UPLOAD_EXPIRY = 900  # 15 minutes
 DOWNLOAD_EXPIRY = 3600  # 1 hour
@@ -33,15 +52,25 @@ def get_s3_client():
         # signature is generated for AWS S3 instead, producing URLs that point
         # at a bucket host which does not exist.
         endpoint_url=getattr(settings, "AWS_S3_ENDPOINT_URL", None) or None,
-        # R2 accepts SigV4 only; leaving it to negotiation is how a custom
-        # endpoint ends up signed with a version the server rejects.
-        config=Config(signature_version="s3v4"),
+        # Shared with django-storages so both clients speak to R2 the same
+        # way. Carries the SigV4 pin and, critically, the checksum settings
+        # without which boto3 1.36+ sends a trailer checksum R2 rejects.
+        config=_client_config(),
     )
 
 
 def generate_presigned_upload(
-    *, folder: str, filename: str, content_type: str,
+    *,
+    folder: str,
+    filename: str,
+    content_type: str,
 ) -> dict:
+    if not is_uploadable(folder):
+        # The folder decides the bucket, so an unchecked value from the client
+        # is a way to write into public storage.
+        allowed = ", ".join(sorted(UPLOAD_FOLDERS))
+        raise ValidationError(f"Unknown upload folder. Expected one of: {allowed}.")
+
     file_key = f"{folder}/{uuid.uuid4()}/{filename}"
     upload_url = get_s3_client().generate_presigned_url(
         "put_object",

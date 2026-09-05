@@ -6,7 +6,7 @@ from apps.common.services.media_urls import catalogue_image_field_url
 
 
 class HeroImageAdminMixin:
-    def hero_image_preview(self, obj) -> str:  # noqa: ANN001
+    def hero_image_preview(self, obj) -> str:
         url = catalogue_image_field_url(
             image=getattr(obj, "hero_image", None),
             fallback_key=getattr(obj, "hero_image_url", ""),

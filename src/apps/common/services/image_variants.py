@@ -19,6 +19,7 @@ VARIANT_WIDTHS: Final[dict[str, int]] = {
 WEBP_QUALITY: Final = 82
 
 
+
 def variant_key(*, original_key: str, width: int) -> str:
     """Deterministic key for a resized copy.
 
@@ -43,6 +44,14 @@ def resize_to_webp(*, image_bytes: bytes, width: int) -> bytes:
     small logo does not get blown up into a larger file than the original.
     """
     with Image.open(io.BytesIO(image_bytes)) as img:
+        # Decode large JPEGs at a reduced scale instead of at full size. The
+        # catalogue holds sources up to 6067x3467 (~21 megapixels, ~84MB once
+        # expanded to RGBA) and the worker runs two at a time inside a 384MB
+        # container. draft() lets the decoder do the first 1/2, 1/4 or 1/8 of
+        # the downscale, so a thumbnail never materialises the full bitmap.
+        # It is a no-op for formats that do not support it.
+        img.draft("RGB", (width, width))
+
         # Phone cameras and design exports carry EXIF rotation. Without this
         # the resized copy is silently rotated relative to the original.
         img = ImageOps.exif_transpose(img)
