@@ -46,3 +46,7 @@ coverage.xml
 
 # pytest
 .pytest_cache/
+belong_all.sql
+*.sql
+belong_all.sql
+*.sql

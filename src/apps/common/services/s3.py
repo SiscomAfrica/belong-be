@@ -8,6 +8,18 @@ from django.conf import settings
 UPLOAD_EXPIRY = 900  # 15 minutes
 DOWNLOAD_EXPIRY = 3600  # 1 hour
 
+PUBLIC_FOLDERS = {"hero_images", "holding_logos", "profile-photos"}
+PUBLIC_MEDIA_BUCKET = "belong-media"
+PUBLIC_MEDIA_URL = "https://media.belong.club"
+
+
+def _bucket_for(file_key: str) -> str:
+    return PUBLIC_MEDIA_BUCKET if is_public(file_key) else settings.AWS_STORAGE_BUCKET_NAME
+
+
+def is_public(file_key: str) -> bool:
+    return file_key.split("/", 1)[0] in PUBLIC_FOLDERS
+
 
 def _get_s3_client():  # noqa: ANN202
     return boto3.client(
@@ -27,7 +39,7 @@ def generate_presigned_upload(
     upload_url = client.generate_presigned_url(
         "put_object",
         Params={
-            "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+            "Bucket": _bucket_for(file_key),
             "Key": file_key,
             "ContentType": content_type,
         },
@@ -41,11 +53,16 @@ def generate_presigned_upload(
 
 
 def generate_presigned_download(*, file_key: str) -> dict:
+    if is_public(file_key):
+        return {
+            "download_url": f"{PUBLIC_MEDIA_URL}/{file_key}",
+            "expires_in": DOWNLOAD_EXPIRY,
+        }
     client = _get_s3_client()
     download_url = client.generate_presigned_url(
         "get_object",
         Params={
-            "Bucket": settings.AWS_STORAGE_BUCKET_NAME,
+            "Bucket": _bucket_for(file_key),
             "Key": file_key,
         },
         ExpiresIn=DOWNLOAD_EXPIRY,
