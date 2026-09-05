@@ -9,8 +9,8 @@ UPLOAD_EXPIRY = 900  # 15 minutes
 DOWNLOAD_EXPIRY = 3600  # 1 hour
 
 PUBLIC_FOLDERS = {"hero_images", "holding_logos", "profile-photos"}
-PUBLIC_MEDIA_BUCKET = "belong-media"
-PUBLIC_MEDIA_URL = "https://media.belong.club"
+PUBLIC_MEDIA_BUCKET = getattr(settings, "PUBLIC_MEDIA_BUCKET", "belong-media")
+PUBLIC_MEDIA_URL = getattr(settings, "PUBLIC_MEDIA_URL", "https://media.belong.club")
 
 
 def _bucket_for(file_key: str) -> str:
