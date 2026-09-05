@@ -1,3 +1,3 @@
-from apps.common.tasks.convert_image import convert_image_to_webp
+from apps.common.tasks.image_variants import generate_image_variants
 
-__all__ = ["convert_image_to_webp"]
+__all__ = ["generate_image_variants"]

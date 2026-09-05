@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from apps.common.tasks import convert_image_to_webp
+from apps.common.tasks import generate_image_variants
 from apps.funds.models import Fund, Playlist
 
 
@@ -16,7 +16,7 @@ def sync_hero_image_url(sender, instance, **kwargs) -> None:  # noqa: ANN001, AN
             sender.objects.filter(pk=instance.pk).update(
                 hero_image_url=file_key,
             )
-            convert_image_to_webp.delay(
+            generate_image_variants.delay(
                 file_key,
                 instance._meta.label,
                 str(instance.pk),

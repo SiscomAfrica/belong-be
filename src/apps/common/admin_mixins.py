@@ -2,20 +2,16 @@ from __future__ import annotations
 
 from django.utils.html import format_html
 
-from apps.common.services.s3 import generate_presigned_download
+from apps.common.services.media_urls import catalogue_image_field_url
 
 
 class HeroImageAdminMixin:
     def hero_image_preview(self, obj) -> str:  # noqa: ANN001
-        if obj.hero_image:
-            url = obj.hero_image.url
-        elif obj.hero_image_url:
-            key = obj.hero_image_url
-            if key.startswith("http"):
-                url = key
-            else:
-                url = generate_presigned_download(file_key=key)["download_url"]
-        else:
+        url = catalogue_image_field_url(
+            image=getattr(obj, "hero_image", None),
+            fallback_key=getattr(obj, "hero_image_url", ""),
+        )
+        if not url:
             return "-"
         return format_html(
             '<img src="{}" style="max-height:80px;max-width:120px;" />',

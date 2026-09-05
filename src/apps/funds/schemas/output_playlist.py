@@ -5,7 +5,7 @@ from uuid import UUID
 from ninja import Schema
 from pydantic import Field
 
-from apps.common.services.s3 import generate_presigned_download
+from apps.common.services.media_urls import catalogue_image_field_url
 from apps.funds.schemas.output import FundOut
 
 
@@ -25,10 +25,10 @@ class PlaylistOut(Schema):
 
     @staticmethod
     def resolve_hero_image_url(obj: object) -> str:
-        key = getattr(obj, "hero_image_url", "")
-        if not key or key.startswith("http"):
-            return key or ""
-        return generate_presigned_download(file_key=key)["download_url"]
+        return catalogue_image_field_url(
+            image=getattr(obj, "hero_image", None),
+            fallback_key=getattr(obj, "hero_image_url", ""),
+        )
 
     @staticmethod
     def resolve_funds(obj):  # noqa: ANN001, ANN205

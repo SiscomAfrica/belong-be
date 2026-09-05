@@ -1,33 +1,41 @@
 from __future__ import annotations
 
 import uuid
+from functools import lru_cache
 
 import boto3
+from botocore.config import Config
 from django.conf import settings
+
+from apps.common.services.media_routing import bucket_for, is_public, public_media_url
 
 UPLOAD_EXPIRY = 900  # 15 minutes
 DOWNLOAD_EXPIRY = 3600  # 1 hour
 
-PUBLIC_FOLDERS = {"hero_images", "holding_logos", "profile-photos"}
-PUBLIC_MEDIA_BUCKET = getattr(settings, "PUBLIC_MEDIA_BUCKET", "belong-media")
-PUBLIC_MEDIA_URL = getattr(settings, "PUBLIC_MEDIA_URL", "https://media.belong.club")
 
+@lru_cache(maxsize=1)
+def get_s3_client():
+    """One client per process.
 
-def _bucket_for(file_key: str) -> str:
-    return PUBLIC_MEDIA_BUCKET if is_public(file_key) else settings.AWS_STORAGE_BUCKET_NAME
+    Constructing a boto3 client resolves credentials and loads service metadata
+    from disk. Serialising a fund list built one client per image, paying that
+    cost once per image before a single byte was signed.
 
-
-def is_public(file_key: str) -> bool:
-    return file_key.split("/", 1)[0] in PUBLIC_FOLDERS
-
-
-def _get_s3_client():  # noqa: ANN202
+    Cached on settings, so a test overriding any AWS_* value must call
+    `get_s3_client.cache_clear()`.
+    """
     return boto3.client(
         "s3",
         region_name=settings.AWS_S3_REGION_NAME,
         aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
         aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        endpoint_url=getattr(settings, "AWS_S3_ENDPOINT_URL", None),
+        # Objects live in Cloudflare R2. Without an explicit endpoint every
+        # signature is generated for AWS S3 instead, producing URLs that point
+        # at a bucket host which does not exist.
+        endpoint_url=getattr(settings, "AWS_S3_ENDPOINT_URL", None) or None,
+        # R2 accepts SigV4 only; leaving it to negotiation is how a custom
+        # endpoint ends up signed with a version the server rejects.
+        config=Config(signature_version="s3v4"),
     )
 
 
@@ -35,11 +43,10 @@ def generate_presigned_upload(
     *, folder: str, filename: str, content_type: str,
 ) -> dict:
     file_key = f"{folder}/{uuid.uuid4()}/{filename}"
-    client = _get_s3_client()
-    upload_url = client.generate_presigned_url(
+    upload_url = get_s3_client().generate_presigned_url(
         "put_object",
         Params={
-            "Bucket": _bucket_for(file_key),
+            "Bucket": bucket_for(file_key),
             "Key": file_key,
             "ContentType": content_type,
         },
@@ -53,18 +60,22 @@ def generate_presigned_upload(
 
 
 def generate_presigned_download(*, file_key: str) -> dict:
-    if is_public(file_key):
+    """A URL for a stored object.
+
+    Public folders get a permanent CDN URL rather than a signature. Signing
+    them was what stopped every cache from ever hitting: the query string
+    changed on every response, so Cloudflare, the OS and the app's own image
+    cache each saw a brand-new image and re-downloaded the whole catalogue.
+    """
+    if is_public(file_key) and public_media_url():
         return {
-            "download_url": f"{PUBLIC_MEDIA_URL}/{file_key}",
+            "download_url": f"{public_media_url()}/{file_key}",
             "expires_in": DOWNLOAD_EXPIRY,
         }
-    client = _get_s3_client()
-    download_url = client.generate_presigned_url(
+
+    download_url = get_s3_client().generate_presigned_url(
         "get_object",
-        Params={
-            "Bucket": _bucket_for(file_key),
-            "Key": file_key,
-        },
+        Params={"Bucket": bucket_for(file_key), "Key": file_key},
         ExpiresIn=DOWNLOAD_EXPIRY,
     )
     return {

@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.db import models
 
 from apps.common.models.base import BaseModel
-from apps.common.storage import holding_logo_upload_path
+from apps.common.storage import PublicMediaStorage, holding_logo_upload_path
 from apps.common.validators import validate_image_max_5mb
 
 
@@ -16,6 +16,7 @@ class FundHolding(BaseModel):
     name = models.CharField(max_length=100)
     logo_image = models.ImageField(
         upload_to=holding_logo_upload_path,
+        storage=PublicMediaStorage,
         blank=True,
         default="",
         validators=[validate_image_max_5mb],

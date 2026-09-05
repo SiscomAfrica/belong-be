@@ -1,16 +1,11 @@
 from __future__ import annotations
 
-import hashlib
-
 from apps.authentication.models import OTP
+from apps.authentication.otp_hashing import hash_otp_code
 from apps.authentication.selectors.get_active_otp import get_active_otp
 from apps.common.exceptions import OTPExpiredError, OTPMaxAttemptsError, ValidationError
 
 MAX_OTP_ATTEMPTS = 5
-
-
-def _hash_code(code: str) -> str:
-    return hashlib.sha256(code.encode()).hexdigest()
 
 
 def verify_otp(*, phone: str, code: str, purpose: str = "REGISTER") -> OTP:
@@ -25,7 +20,7 @@ def verify_otp(*, phone: str, code: str, purpose: str = "REGISTER") -> OTP:
 
     otp.attempts += 1
 
-    if _hash_code(code) != otp.code:
+    if hash_otp_code(code) != otp.code:
         otp.save(update_fields=["attempts", "updated_at"])
         remaining = MAX_OTP_ATTEMPTS - otp.attempts
         raise ValidationError(f"Invalid OTP code. {remaining} attempts remaining.")

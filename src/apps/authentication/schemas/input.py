@@ -31,6 +31,12 @@ class PINVerifyIn(Schema):
     pin: str = Field(description="4-digit numeric PIN to verify")
 
 
+class PINResetIn(Schema):
+    phone: str = Field(description="E.164 phone number")
+    otp_code: str = Field(description="6-digit OTP code sent to that phone")
+    pin: str = Field(description="New 4-digit numeric PIN")
+
+
 class LoginIn(Schema):
     phone: str = Field(description="E.164 phone number")
     pin: str = Field(description="4-digit numeric PIN")

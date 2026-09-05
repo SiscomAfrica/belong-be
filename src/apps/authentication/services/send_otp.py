@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import logging
 import secrets
 from datetime import timedelta
@@ -9,6 +8,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from apps.authentication.models import OTP
+from apps.authentication.otp_hashing import hash_otp_code
 from apps.authentication.selectors.count_active_otps import count_active_otps
 from apps.authentication.sms import send_sms
 from apps.common.exceptions import NotFoundError, RateLimitError
@@ -18,10 +18,6 @@ logger = logging.getLogger(__name__)
 
 MAX_ACTIVE_OTPS = 3
 OTP_EXPIRY_MINUTES = 5
-
-
-def _hash_code(code: str) -> str:
-    return hashlib.sha256(code.encode()).hexdigest()
 
 
 def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> OTP:
@@ -37,7 +33,7 @@ def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> 
     raw_code = f"{secrets.randbelow(10**6):06d}"
     otp = OTP.objects.create(
         phone=phone,
-        code=_hash_code(raw_code),
+        code=hash_otp_code(raw_code),
         channel=channel,
         purpose=purpose,
         expires_at=timezone.now() + timedelta(minutes=OTP_EXPIRY_MINUTES),

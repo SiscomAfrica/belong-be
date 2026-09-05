@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from apps.common.tasks import convert_image_to_webp
+from django.db import transaction
+
+from apps.common.tasks import generate_image_variants
 from apps.users.models import User
 
 
@@ -27,10 +29,15 @@ def update_profile(
     ])
 
     if profile_image_key is not None:
-        convert_image_to_webp.delay(
-            profile_image_key,
-            user._meta.label,
-            str(user.pk),
+        # Queued after commit, not inside it: a worker can otherwise pick the
+        # task up before the row it was queued for is visible, or run for a
+        # transaction that ends up rolled back.
+        transaction.on_commit(
+            lambda: generate_image_variants.delay(
+                profile_image_key,
+                user._meta.label,
+                str(user.pk),
+            ),
         )
 
     return user

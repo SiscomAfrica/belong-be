@@ -3,7 +3,7 @@ from __future__ import annotations
 from django.db import models
 
 from apps.common.models.base import BaseModel
-from apps.common.storage import hero_image_upload_path
+from apps.common.storage import PublicMediaStorage, hero_image_upload_path
 from apps.common.validators import validate_image_max_5mb
 
 
@@ -14,6 +14,7 @@ class Playlist(BaseModel):
     hero_image_url = models.URLField(blank=True, default="")
     hero_image = models.ImageField(
         upload_to=hero_image_upload_path,
+        storage=PublicMediaStorage,
         blank=True,
         default="",
         validators=[validate_image_max_5mb],

@@ -11,6 +11,7 @@ from apps.authentication.schemas import (
     OTPSendIn,
     OTPSentOut,
     OTPVerifyIn,
+    PINResetIn,
     PINSetIn,
     PINVerifyIn,
     RegisterIn,
@@ -18,6 +19,7 @@ from apps.authentication.schemas import (
 from apps.authentication.services.enable_biometrics import enable_biometrics
 from apps.authentication.services.login import login
 from apps.authentication.services.register import register
+from apps.authentication.services.reset_pin import reset_pin
 from apps.authentication.services.send_otp import send_otp
 from apps.authentication.services.set_pin import set_pin
 from apps.authentication.services.verify_otp import verify_otp
@@ -68,6 +70,17 @@ def verify_otp_endpoint(request, payload: OTPVerifyIn):
 def set_pin_endpoint(request, payload: PINSetIn):
     """Set or update the authenticated user's 4-digit PIN."""
     return set_pin(user=request.auth, pin=payload.pin)
+
+
+@auth_router.post("/pin/reset", response=UserOut, auth=None)
+def reset_pin_endpoint(request, payload: PINResetIn):
+    """Set a new PIN after phone ownership is proven by OTP (forgot passcode).
+
+    Public by necessity — the caller has no PIN to sign in with. The OTP is the
+    credential, so the shared auth throttle on this router is what stands
+    between the endpoint and code guessing.
+    """
+    return reset_pin(phone=payload.phone, otp_code=payload.otp_code, pin=payload.pin)
 
 
 @auth_router.post("/pin/verify", response={200: dict})

@@ -9,7 +9,7 @@ from uuid import UUID
 from ninja import Schema
 from pydantic import Field
 
-from apps.common.services.s3 import generate_presigned_download
+from apps.common.services.media_urls import catalogue_image_field_url
 
 
 class FundOut(Schema):
@@ -35,13 +35,10 @@ class FundOut(Schema):
 
     @staticmethod
     def resolve_hero_image_url(obj: object) -> str:
-        image = getattr(obj, "hero_image", None)
-        if image and getattr(image, "name", ""):
-            return generate_presigned_download(file_key=image.name)["download_url"]
-        key = getattr(obj, "hero_image_url", "")
-        if not key or key.startswith("http"):
-            return key or ""
-        return generate_presigned_download(file_key=key)["download_url"]
+        return catalogue_image_field_url(
+            image=getattr(obj, "hero_image", None),
+            fallback_key=getattr(obj, "hero_image_url", ""),
+        )
 
 
 class FundNAVOut(Schema):
