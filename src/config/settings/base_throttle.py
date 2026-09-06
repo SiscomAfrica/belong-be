@@ -25,4 +25,15 @@ CACHES = {
 THROTTLE_ANON = env("THROTTLE_ANON", default="100/h")
 THROTTLE_USER = env("THROTTLE_USER", default="1000/h")
 THROTTLE_AUTH = env("THROTTLE_AUTH", default="10/m")
+# Applies to the whole payments router: reads, status polling, everything.
+# Deliberately generous, because it is not what limits how much money moves.
 THROTTLE_PAYMENTS = env("THROTTLE_PAYMENTS", default="30/m")
+
+# How many payments one user may *start*. This is the limit that matters, and
+# it is counted separately from reads: the app polls payment status up to 40
+# times per top-up, so a shared bucket was exhausted by a single successful
+# transaction and the next attempt was refused.
+#
+# Sliding window, not a fixed one — with a fixed reset a user could start 6
+# just before the boundary and 6 just after.
+THROTTLE_PAYMENT_INITIATION = env("THROTTLE_PAYMENT_INITIATION", default="6/12h")

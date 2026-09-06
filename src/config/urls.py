@@ -13,8 +13,6 @@ from apps.ai_profiler.api_questions import questions_router
 from apps.authentication.api import auth_router
 from apps.common.api import health_router
 from apps.common.api_uploads import uploads_router
-from apps.common.exceptions import AppError
-from apps.common.schemas import ErrorOut
 from apps.compliance.api import compliance_router
 from apps.feed.api import feed_router
 from apps.funds.api import funds_router
@@ -36,6 +34,7 @@ from apps.simulation.api import simulation_router
 from apps.users.api import users_router
 from apps.wishlist.api import wishlist_router
 from config.api_description import API_DESCRIPTION
+from config.exception_handlers import register_exception_handlers
 from config.redoc_view import redoc_view
 from config.throttles import default_throttles
 
@@ -73,16 +72,7 @@ api.add_router("/referrals", referrals_router, tags=["referrals"])
 api.add_router("/compliance", compliance_router, tags=["compliance"])
 api.add_router("/uploads", uploads_router, tags=["uploads"])
 
-
-@api.exception_handler(AppError)
-def handle_app_error(request, exc: AppError):
-    return api.create_response(
-        request,
-        ErrorOut(
-            error={"code": exc.code, "message": str(exc), "details": exc.details}
-        ).dict(),
-        status=exc.status_code,
-    )
+register_exception_handlers(api)
 
 
 api.add_router("/token", obtain_pair_router, tags=["token"])

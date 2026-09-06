@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from django.conf import settings
 from ninja import Query, Router
-from ninja.throttling import AuthRateThrottle
 
 from apps.payments.schemas import (
     PaymentInitiateIn,
@@ -15,14 +13,19 @@ from apps.payments.schemas import (
 from apps.payments.selectors.get_payment_transaction import get_payment_transaction
 from apps.payments.selectors.list_user_payments import list_user_payments
 from apps.payments.services.initiate_payment import initiate_payment
+from config.throttles import payment_initiation_throttles, payment_read_throttles
 
 payments_router = Router(
     tags=["payments"],
-    throttle=[AuthRateThrottle(settings.THROTTLE_PAYMENTS)],
+    throttle=payment_read_throttles(),
 )
 
 
-@payments_router.post("/initiate/", response={201: PaymentInitiateOut})
+@payments_router.post(
+    "/initiate/",
+    response={201: PaymentInitiateOut},
+    throttle=payment_initiation_throttles(),
+)
 def initiate(request, payload: PaymentInitiateIn):
     """Initiate a payment for an investment via M-Pesa or Paystack."""
     txn = initiate_payment(
