@@ -8,10 +8,23 @@ from apps.common.models.base import BaseModel
 
 
 class PlanFrequency(models.TextChoices):
+    """Contribution cadences, aligned 1:1 with M-Pesa Ratiba's Frequency enum.
+
+    Ratiba is what collects the money, so a plan must never hold a cadence
+    Ratiba cannot express — there would be no way to schedule the deduction.
+    The numeric codes Ratiba wants live in apps.payments.providers.ratiba_request,
+    so this app stays ignorant of Daraja's wire format.
+    """
+
+    ONE_OFF = "ONE_OFF", "One Off"
     DAILY = "DAILY", "Daily"
     WEEKLY = "WEEKLY", "Weekly"
-    BIWEEKLY = "BIWEEKLY", "Biweekly"
+    BIWEEKLY = "BIWEEKLY", "Bi-weekly"
     MONTHLY = "MONTHLY", "Monthly"
+    BIMONTHLY = "BIMONTHLY", "Bi-monthly"
+    QUARTERLY = "QUARTERLY", "Quarterly"
+    HALF_YEARLY = "HALF_YEARLY", "Half Yearly"
+    YEARLY = "YEARLY", "Yearly"
 
 
 class RecurringPlan(BaseModel):

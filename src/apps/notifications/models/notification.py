@@ -18,6 +18,10 @@ class NotificationType(models.TextChoices):
     REFERRAL_CONVERTED = "REFERRAL_CONVERTED", "Referral Converted"
     STATEMENT_READY = "STATEMENT_READY", "Statement Ready"
     PROFILER_COMPLETED = "PROFILER_COMPLETED", "Profiler Completed"
+    CONTRIBUTION_DUE = "CONTRIBUTION_DUE", "Contribution Due"
+    STANDING_ORDER_ACTIVE = "STANDING_ORDER_ACTIVE", "Standing Order Active"
+    STANDING_ORDER_CHARGED = "STANDING_ORDER_CHARGED", "Standing Order Charged"
+    STANDING_ORDER_FAILED = "STANDING_ORDER_FAILED", "Standing Order Failed"
     GENERAL = "GENERAL", "General"
 
 

@@ -1,6 +1,7 @@
 from apps.investments.selectors.get_holding import get_holding
 from apps.investments.selectors.get_investment import get_investment
 from apps.investments.selectors.get_investment_goal import get_investment_goal
+from apps.investments.selectors.get_min_contribution import get_min_contribution
 from apps.investments.selectors.get_portfolio_summary import get_portfolio_summary
 from apps.investments.selectors.get_recurring_plan import get_recurring_plan
 from apps.investments.selectors.list_portfolio_snapshots import list_portfolio_snapshots
@@ -13,6 +14,7 @@ __all__ = [
     "get_holding",
     "get_investment",
     "get_investment_goal",
+    "get_min_contribution",
     "get_portfolio_summary",
     "get_recurring_plan",
     "list_portfolio_snapshots",

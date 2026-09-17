@@ -6,6 +6,7 @@ from apps.investments.models import (
     Holding,
     Investment,
     InvestmentGoal,
+    InvestmentSettings,
     PortfolioSnapshot,
     RecurringPlan,
 )
@@ -48,3 +49,21 @@ class InvestmentGoalAdmin(admin.ModelAdmin):
     list_display = ("user", "fund", "target_amount", "target_date", "created_at")
     list_filter = ("fund",)
     ordering = ("-created_at",)
+
+
+@admin.register(InvestmentSettings)
+class InvestmentSettingsAdmin(admin.ModelAdmin):
+    """Single-row platform configuration.
+
+    Adding a second row would make which one wins a matter of ordering, and
+    deleting the only row would silently fall back to the field default, so
+    neither is offered.
+    """
+
+    list_display = ("min_contribution", "updated_at")
+
+    def has_add_permission(self, request, obj=None) -> bool:
+        return not InvestmentSettings.objects.exists()
+
+    def has_delete_permission(self, request, obj=None) -> bool:
+        return False

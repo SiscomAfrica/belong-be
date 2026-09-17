@@ -8,6 +8,9 @@ from apps.funds.models import Fund
 from apps.investments.models import Investment, InvestmentStatus
 from apps.payments.models import PaymentStatus, PaymentTransaction
 from apps.payments.services.credit_wallet import credit_wallet
+
+# Re-exported so every test in this app can request them as fixtures.
+from apps.payments.tests.ratiba_fixtures import plan, standing_order  # noqa: F401
 from apps.users.models import User
 
 
@@ -77,3 +80,4 @@ def admin() -> User:
     return User.objects.create(
         phone="+254700000009", username="admin", referral_code="ADMIN001",
     )
+

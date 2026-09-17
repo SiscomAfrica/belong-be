@@ -8,8 +8,10 @@ from apps.investments.models.recurring_plan import RecurringPlan
 
 def get_recurring_plan(*, plan_id: UUID, user_id: UUID) -> RecurringPlan:
     try:
-        return RecurringPlan.objects.select_related("fund").get(
-            id=plan_id, user_id=user_id
+        return (
+            RecurringPlan.objects.select_related("fund")
+            .prefetch_related("standing_orders")
+            .get(id=plan_id, user_id=user_id)
         )
     except RecurringPlan.DoesNotExist:
         raise PlanNotFoundError()

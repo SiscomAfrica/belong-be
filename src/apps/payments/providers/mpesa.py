@@ -6,7 +6,6 @@ from decimal import Decimal
 
 import httpx
 from django.conf import settings
-from django.core.cache import cache
 
 from apps.payments.exceptions import PaymentProviderError
 from apps.payments.providers.base import (
@@ -14,34 +13,15 @@ from apps.payments.providers.base import (
     ProviderCallbackResult,
     ProviderInitResult,
 )
-
-SANDBOX_URL = "https://sandbox.safaricom.co.ke"
-PRODUCTION_URL = "https://api.safaricom.co.ke"
+from apps.payments.providers.mpesa_auth import get_mpesa_access_token, mpesa_base_url
 
 
 class MpesaProvider(BasePaymentProvider):
     def _get_base_url(self) -> str:
-        if getattr(settings, "MPESA_ENV", "sandbox") == "production":
-            return PRODUCTION_URL
-        return SANDBOX_URL
+        return mpesa_base_url()
 
     def _get_access_token(self) -> str:
-        cached = cache.get("mpesa_access_token")
-        if cached:
-            return cached
-        url = f"{self._get_base_url()}/oauth/v1/generate?grant_type=client_credentials"
-        try:
-            resp = httpx.get(
-                url,
-                auth=(settings.MPESA_CONSUMER_KEY, settings.MPESA_CONSUMER_SECRET),
-                timeout=30,
-            )
-            resp.raise_for_status()
-        except httpx.HTTPError as e:
-            raise PaymentProviderError(f"M-Pesa auth failed: {e}") from e
-        token = resp.json()["access_token"]
-        cache.set("mpesa_access_token", token, timeout=3300)
-        return token
+        return get_mpesa_access_token()
 
     def _generate_password(self, timestamp: str) -> str:
         data = f"{settings.MPESA_SHORTCODE}{settings.MPESA_PASSKEY}{timestamp}"

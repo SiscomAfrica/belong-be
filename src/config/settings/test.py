@@ -26,6 +26,14 @@ CACHES = {
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
 
+# Eager tasks still resolve a broker and result backend, and the base settings
+# point both at Redis. Any test touching a service that queues work — creating
+# a notification, for one — otherwise burns ~20 seconds retrying a connection
+# that will never come up, then fails on something unrelated to the assertion.
+CELERY_BROKER_URL = "memory://"
+CELERY_RESULT_BACKEND = "cache+memory://"
+CELERY_TASK_STORE_EAGER_RESULT = False
+
 # Dummy R2 credentials so storage clients can be built and requests signed
 # entirely offline. The suite never reaches the network — the R2 compatibility
 # tests inspect the request botocore *would* send and abort before sending it.

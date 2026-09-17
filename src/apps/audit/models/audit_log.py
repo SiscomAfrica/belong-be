@@ -34,6 +34,11 @@ class AuditAction(models.TextChoices):
     REFERRAL_CONVERTED = "REFERRAL_CONVERTED", "Referral Converted"
     CONSENT_RECORDED = "CONSENT_RECORDED", "Consent Recorded"
     INVESTMENT_KYC_ACTIVATED = "INVESTMENT_KYC_ACTIVATED", "Investment KYC Activated"
+    STANDING_ORDER_CREATED = "STANDING_ORDER_CREATED", "Standing Order Created"
+    STANDING_ORDER_ACTIVATED = "STANDING_ORDER_ACTIVATED", "Standing Order Activated"
+    STANDING_ORDER_CANCELLED = "STANDING_ORDER_CANCELLED", "Standing Order Cancelled"
+    STANDING_ORDER_CHARGED = "STANDING_ORDER_CHARGED", "Standing Order Charged"
+    STANDING_ORDER_CHARGE_FAILED = "STANDING_ORDER_CHARGE_FAILED", "Standing Order Charge Failed"
 
 
 class AuditLog(models.Model):

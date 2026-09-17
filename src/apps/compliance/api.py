@@ -17,6 +17,7 @@ from apps.compliance.services.check_consent_current import check_consent_current
 from apps.compliance.services.generate_statement import generate_statement
 from apps.compliance.services.get_user_tier import get_user_tier
 from apps.compliance.services.record_consent import record_consent
+from apps.investments.selectors.get_min_contribution import get_min_contribution
 
 compliance_router = Router(tags=["compliance"])
 
@@ -28,9 +29,22 @@ def get_limits(request):
 
     tier = get_user_tier(user_id=request.auth.id)
     limit = get_investment_limits(kyc_tier=tier)
+    minimum = get_min_contribution()
+
     if limit is None:
-        return InvestmentLimitOut(kyc_tier=tier, max_per_transaction=0, max_per_month=0)
-    return limit
+        return InvestmentLimitOut(
+            kyc_tier=tier,
+            max_per_transaction=0,
+            max_per_month=0,
+            min_contribution=minimum,
+        )
+
+    return InvestmentLimitOut(
+        kyc_tier=tier,
+        max_per_transaction=limit.max_per_transaction,
+        max_per_month=limit.max_per_month,
+        min_contribution=minimum,
+    )
 
 
 @compliance_router.get("/consent/latest", response=list[ConsentVersionOut])

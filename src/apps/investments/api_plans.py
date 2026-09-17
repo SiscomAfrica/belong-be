@@ -22,6 +22,9 @@ def create_plan(request, payload: PlanCreateIn):  # noqa: ANN001, ANN201
         fund_id=payload.fund_id,
         amount=payload.amount,
         frequency=payload.frequency,
+        # The standing order is raised against the account holder's own M-PESA
+        # number; the service never sees the request.
+        phone_number=request.auth.phone,
     )
     return 201, plan
 

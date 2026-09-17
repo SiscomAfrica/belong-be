@@ -6,16 +6,22 @@ from celery import shared_task
 from django.utils import timezone
 
 from apps.common.observability import report_exception
-from apps.investments.services.create_recurring_plan import FREQUENCY_OFFSETS
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task(name="apps.investments.tasks.execute_due_recurring_plans")
 def execute_due_recurring_plans() -> int:
+    """Invest every due contribution that has been funded.
+
+    The money arrives separately, via an M-Pesa Ratiba standing order crediting
+    the user's wallet. This job only moves it from wallet to fund, so a plan
+    whose deduction has not landed is skipped and retried tomorrow rather than
+    failed.
+    """
     from apps.investments.models.recurring_plan import RecurringPlan
-    from apps.investments.services.create_investment import create_investment
-    from apps.notifications.models import Notification, NotificationType
+    from apps.investments.selectors.get_min_contribution import get_min_contribution
+    from apps.investments.services.execute_recurring_plan import execute_recurring_plan
 
     # localdate(), not date.today(): the container runs UTC while the project
     # is Africa/Nairobi (UTC+3), so a naive today() can be a day behind and
@@ -23,27 +29,19 @@ def execute_due_recurring_plans() -> int:
     today = timezone.localdate()
     plans = RecurringPlan.objects.filter(
         is_active=True, next_run_date__lte=today
-    ).select_related("fund")
+    ).select_related("fund", "user")
+
+    # Read once for the whole batch rather than per plan.
+    floor = get_min_contribution()
 
     executed = 0
+    unfunded = 0
     for plan in plans:
-        key = f"recurring-{plan.id}-{plan.next_run_date}"
         try:
-            create_investment(
-                user_id=plan.user_id,
-                fund_id=plan.fund_id,
-                amount=plan.amount,
-                idempotency_key=key,
-            )
-            Notification.objects.create(
-                user_id=plan.user_id,
-                type=NotificationType.RECURRING_PLAN_EXECUTED,
-                title="Recurring investment executed",
-                body=f"Invested {plan.amount} in {plan.fund.name}.",
-            )
-            plan.next_run_date += FREQUENCY_OFFSETS[plan.frequency]
-            plan.save(update_fields=["next_run_date", "updated_at"])
-            executed += 1
+            if execute_recurring_plan(plan=plan, min_contribution=floor):
+                executed += 1
+            else:
+                unfunded += 1
         except Exception:
             # One bad plan must not stop the rest of the run, but a recurring
             # investment silently not executing is exactly the sort of failure
@@ -54,5 +52,7 @@ def execute_due_recurring_plans() -> int:
                 plan_id=plan.id,
             )
 
-    logger.info("Executed %d recurring plans", executed)
+    logger.info(
+        "Recurring plans: %d executed, %d awaiting funds", executed, unfunded,
+    )
     return executed

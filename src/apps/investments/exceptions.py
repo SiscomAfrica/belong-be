@@ -50,3 +50,20 @@ class DuplicateActivePlanError(ConflictError):
 
     def __init__(self) -> None:
         super().__init__("An active plan already exists for this fund.")
+
+
+class StandingOrderLockedError(ConflictError):
+    code = "STANDING_ORDER_LOCKED"
+
+    def __init__(self) -> None:
+        super().__init__(
+            "This plan is funded by an M-PESA standing order, which cannot be "
+            "amended. Cancel it in the M-PESA menu, then create a new plan."
+        )
+
+
+class BelowMinimumContributionError(ValidationError):
+    code = "BELOW_MINIMUM_CONTRIBUTION"
+
+    def __init__(self, minimum: str) -> None:
+        super().__init__(f"Contribution must be at least KES {minimum}.")

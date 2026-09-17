@@ -1,4 +1,8 @@
-from apps.payments.schemas.input import PaymentInitiateIn, WithdrawalCreateIn
+from apps.payments.schemas.input import (
+    PaymentInitiateIn,
+    WalletTopUpIn,
+    WithdrawalCreateIn,
+)
 from apps.payments.schemas.output import (
     PaymentInitiateOut,
     PaymentListOut,
@@ -15,6 +19,7 @@ __all__ = [
     "PaymentListOut",
     "PaymentTransactionOut",
     "WalletOut",
+    "WalletTopUpIn",
     "WebhookAckOut",
     "WithdrawalCreateIn",
     "WithdrawalListOut",

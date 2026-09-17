@@ -25,8 +25,21 @@ def _resolve_investment_status(*, user_id: UUID) -> str:
 
 
 def create_investment(
-    *, user_id: UUID, fund_id: UUID, amount: Decimal, idempotency_key: str
+    *,
+    user_id: UUID,
+    fund_id: UUID,
+    amount: Decimal,
+    idempotency_key: str,
+    minimum_amount: Decimal | None = None,
 ) -> Investment:
+    """Record an investment.
+
+    `minimum_amount` overrides the fund's own `minimum_investment` floor. A
+    recurring plan passes the platform contribution floor here, because that
+    minimum governs a lump sum bought in one go, while a plan drips in and
+    accumulates — holding it to the lump-sum floor would make small regular
+    saving impossible.
+    """
     existing = Investment.objects.filter(idempotency_key=idempotency_key).first()
     if existing:
         return existing
@@ -38,8 +51,9 @@ def create_investment(
     fund = Fund.objects.get(id=fund_id)
     if not fund.is_active:
         raise FundNotActiveError()
-    if amount < fund.minimum_investment:
-        raise BelowMinimumInvestmentError(str(fund.minimum_investment))
+    floor = fund.minimum_investment if minimum_amount is None else minimum_amount
+    if amount < floor:
+        raise BelowMinimumInvestmentError(str(floor))
 
     nav = get_latest_fund_nav(fund_id=fund_id)
     nav_value = nav.nav_value if nav else fund.minimum_investment

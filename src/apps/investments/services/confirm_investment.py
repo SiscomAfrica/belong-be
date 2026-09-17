@@ -22,6 +22,13 @@ def confirm_investment(*, investment_id: UUID) -> Investment:
             .select_related("fund")
             .get(id=investment_id)
         )
+        if investment.status == InvestmentStatus.CONFIRMED:
+            # Already applied. Without this, two callers racing here — a KYC
+            # webhook Safaricom retried and a payment settling, say — each take
+            # the lock in turn and each call update_holding, crediting the
+            # units twice for one investment.
+            return investment
+
         investment.status = InvestmentStatus.CONFIRMED
         investment.confirmed_at = timezone.now()
         investment.save(update_fields=["status", "confirmed_at", "updated_at"])

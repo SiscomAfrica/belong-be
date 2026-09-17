@@ -12,6 +12,9 @@ class InvestmentLimitOut(Schema):
     kyc_tier: str = Field(description="User KYC tier determining limits")
     max_per_transaction: Decimal = Field(description="Maximum single transaction amount in KES")
     max_per_month: Decimal = Field(description="Maximum monthly investment amount in KES")
+    min_contribution: Decimal = Field(
+        description="Smallest amount a recurring contribution may collect, in KES",
+    )
 
 
 class ConsentVersionOut(Schema):
