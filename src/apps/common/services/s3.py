@@ -72,12 +72,23 @@ def generate_presigned_upload(
         raise ValidationError(f"Unknown upload folder. Expected one of: {allowed}.")
 
     file_key = f"{folder}/{uuid.uuid4()}/{filename}"
+    # `content_type` is accepted but deliberately NOT signed.
+    #
+    # Passing it here puts content-type into SignedHeaders, and R2 then 403s
+    # the PUT unless the client's header matches byte for byte. React Native
+    # cannot promise that: BlobModule.toRequestBody overrides the Content-Type
+    # header with the blob's own `type`, falling back to
+    # application/octet-stream when the blob has none. No amount of setting the
+    # header from JS wins against that, so the header cannot be in the
+    # signature.
+    #
+    # Nothing is given up by leaving it out. `content_type` arrives from the
+    # client either way, so signing it never constrained what could be stored.
     upload_url = get_s3_client().generate_presigned_url(
         "put_object",
         Params={
             "Bucket": bucket_for(file_key),
             "Key": file_key,
-            "ContentType": content_type,
         },
         ExpiresIn=UPLOAD_EXPIRY,
     )
