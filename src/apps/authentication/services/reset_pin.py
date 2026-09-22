@@ -7,7 +7,12 @@ from apps.audit.services import create_audit_log
 from apps.authentication.models import OTP
 from apps.authentication.services.consume_reset_otp import consume_reset_otp
 from apps.authentication.services.set_pin import set_pin
-from apps.common.exceptions import AuthenticationError, OTPExpiredError
+from apps.common.exceptions import (
+    AuthenticationError,
+    OTPExpiredError,
+    ValidationError,
+)
+from apps.common.validation import validate_mobile_e164, validate_otp_code
 from apps.users.models import User
 from apps.users.selectors.get_user_by_phone import get_user_by_phone
 
@@ -20,6 +25,16 @@ def reset_pin(*, phone: str, otp_code: str, pin: str) -> User:
     minutes earlier is the whole proof, which is why the code is consumed here
     rather than simply read.
     """
+    # Phone and code are shape-checked behind the same generic failure as an
+    # unknown number, so this endpoint stays useless for account discovery.
+    # The PIN is not — a rejected new PIN has to say what is wrong with it,
+    # and by then the caller has already proved they hold the phone.
+    try:
+        phone = validate_mobile_e164(value=phone)
+        otp_code = validate_otp_code(value=otp_code)
+    except ValidationError:
+        raise AuthenticationError("Invalid phone number or code.") from None
+
     user = get_user_by_phone(phone=phone)
     if user is None or not user.is_active:
         # One message whichever half failed, so this cannot be used to discover

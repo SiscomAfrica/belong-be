@@ -5,6 +5,12 @@ from apps.ai_profiler.rubric import (
     ORDINAL_ANCHORS,
     ORDINAL_KEYS,
 )
+from apps.ai_profiler.services.question_exemplar import style_exemplar
+from apps.ai_profiler.services.question_style import (
+    SUBTITLE_RULES,
+    VOICE_RULES,
+    anchor_guidance,
+)
 
 
 def build_generation_prompt(*, behaviour: str, asked: list[dict]) -> str:
@@ -20,6 +26,9 @@ def build_generation_prompt(*, behaviour: str, asked: list[dict]) -> str:
         for part in (
             f"Write one question that measures: {behaviour}.",
             _anchor_block(behaviour=behaviour),
+            VOICE_RULES,
+            SUBTITLE_RULES,
+            style_exemplar(behaviour=behaviour),
             _avoid_block(asked=asked),
             "Return only the structured question.",
         )
@@ -33,17 +42,11 @@ def _anchor_block(*, behaviour: str) -> str:
             f"  {level} = {text}"
             for level, text in ORDINAL_ANCHORS[behaviour].items()
         )
-        return (
-            f"Anchors for {behaviour} — write one option per anchor you use, "
-            f"and tag it with that number:\n{lines}"
-        )
+    else:
+        values = CATEGORICAL_VALUES.get(behaviour, {})
+        lines = "\n".join(f"  {key} = {text}" for key, text in values.items())
 
-    values = CATEGORICAL_VALUES.get(behaviour, {})
-    lines = "\n".join(f"  {key} = {text}" for key, text in values.items())
-    return (
-        f"Categories for {behaviour} — write one option per category you use, "
-        f"and tag it with that key:\n{lines}"
-    )
+    return anchor_guidance(behaviour=behaviour, lines=lines)
 
 
 def _avoid_block(*, asked: list[dict]) -> str:
@@ -54,6 +57,8 @@ def _avoid_block(*, asked: list[dict]) -> str:
 
     lines = "\n".join(f"  - {text}" for text in previous)
     return (
-        "Already asked in this session — use a clearly different framing "
-        f"and different wording:\n{lines}"
+        "Already asked in this session. Do not reuse the situation, the "
+        "sentence shape, or the opening words — a user should not feel they "
+        "are answering the same question twice:\n"
+        f"{lines}"
     )

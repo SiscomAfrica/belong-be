@@ -7,11 +7,13 @@ from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
 
-from apps.authentication.models import OTP
+from apps.authentication.models import OTP, OTPChannel, OTPPurpose
 from apps.authentication.otp_hashing import hash_otp_code
 from apps.authentication.selectors.count_active_otps import count_active_otps
 from apps.authentication.sms import send_sms
 from apps.common.exceptions import NotFoundError, RateLimitError
+from apps.common.validation import validate_mobile_e164
+from apps.common.validation.choice import validate_choice
 from apps.users.selectors.get_user_by_phone import get_user_by_phone
 
 logger = logging.getLogger(__name__)
@@ -21,6 +23,12 @@ OTP_EXPIRY_MINUTES = 5
 
 
 def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> OTP:
+    # Public, unauthenticated, and it sends a paid SMS — so the number is
+    # proven to be a real mobile line before a message is ever dispatched.
+    phone = validate_mobile_e164(value=phone)
+    purpose = validate_choice(value=purpose, allowed=OTPPurpose, field="purpose")
+    channel = validate_choice(value=channel, allowed=OTPChannel, field="channel")
+
     if purpose == "LOGIN":
         user = get_user_by_phone(phone=phone)
         if user is None or not user.is_active:
@@ -40,7 +48,7 @@ def send_otp(*, phone: str, purpose: str = "REGISTER", channel: str = "SMS") -> 
     )
 
     if settings.DEBUG:
-        logger.debug("OTP code for %s: %s", phone, raw_code)  # noqa: T20
+        logger.debug("OTP code for %s: %s", phone, raw_code)
 
     message = f"Your Belong verification code is {raw_code}. It expires in 5 minutes."
     result = send_sms(phone=phone, message=message)

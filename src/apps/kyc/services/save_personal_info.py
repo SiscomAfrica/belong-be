@@ -5,6 +5,24 @@ from uuid import UUID
 
 from apps.kyc.exceptions import KYCInvalidStateError
 from apps.kyc.models import KYCStatus, KYCSubmission
+from apps.kyc.services.validate_personal_info import validate_personal_info
+
+# The fields this endpoint owns, in the order a reviewer reads them.
+FIELDS = (
+    "first_name",
+    "last_name",
+    "date_of_birth",
+    "nationality",
+    "id_number",
+    "kra_pin",
+    "city",
+    "address",
+    "employment_status",
+    "income_source",
+    "kin_name",
+    "kin_phone",
+    "kin_email",
+)
 
 
 def save_personal_info(
@@ -36,18 +54,30 @@ def save_personal_info(
     if submission.status == KYCStatus.REJECTED:
         submission.status = KYCStatus.PENDING
 
-    submission.first_name = first_name
-    submission.last_name = last_name
-    submission.date_of_birth = date_of_birth
-    submission.nationality = nationality
-    submission.id_number = id_number
-    submission.kra_pin = kra_pin
-    submission.city = city
-    submission.address = address
-    submission.employment_status = employment_status
-    submission.income_source = income_source
-    submission.kin_name = kin_name
-    submission.kin_phone = kin_phone
-    submission.kin_email = kin_email
-    submission.save()
+    # Validated here rather than in the schema because the ID number's format
+    # depends on `document_type`, which lives on the submission — the payload
+    # never carries it. Raises with every field problem at once.
+    cleaned = validate_personal_info(
+        data={
+            "first_name": first_name,
+            "last_name": last_name,
+            "date_of_birth": date_of_birth,
+            "nationality": nationality,
+            "id_number": id_number,
+            "kra_pin": kra_pin,
+            "city": city,
+            "address": address,
+            "employment_status": employment_status,
+            "income_source": income_source,
+            "kin_name": kin_name,
+            "kin_phone": kin_phone,
+            "kin_email": kin_email,
+        },
+        document_type=submission.document_type,
+    )
+
+    for field in FIELDS:
+        setattr(submission, field, cleaned[field])
+
+    submission.save(update_fields=[*FIELDS, "status", "updated_at"])
     return KYCSubmission.objects.prefetch_related("documents").get(pk=submission.pk)

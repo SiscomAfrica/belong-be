@@ -58,12 +58,7 @@ def test_an_unknown_folder_is_rejected_not_silently_accepted() -> None:
 
 
 @routed
-def test_a_client_cannot_upload_straight_into_public_storage() -> None:
-    """hero_images is uploadable, but only staff reach the admin that writes it.
-
-    The check that matters is that an arbitrary string cannot reach the public
-    bucket — a caller has to name a folder we chose.
-    """
+def test_an_arbitrary_folder_cannot_reach_the_public_bucket() -> None:
     with pytest.raises(ValidationError):
         generate_presigned_upload(
             folder="hero_images/../profile-photos",

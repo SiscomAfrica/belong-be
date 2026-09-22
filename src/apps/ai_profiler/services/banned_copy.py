@@ -29,10 +29,24 @@ BANNED_PHRASES: Final[tuple[str, ...]] = (
 # Any explicit return figure — "12%", "12.5 %", "+130%".
 PERCENTAGE = re.compile(r"[-+]?\d+(?:\.\d+)?\s*%")
 
-# Fund names must not appear in questions; recommendation happens after
-# scoring, never inside it.
+# Product nouns must not appear in a question. Naming an instrument inside a
+# suitability assessment is a recommendation made before the assessment has
+# concluded — recommendation happens after scoring, never inside it.
+#
+# Deliberately narrow, because a false positive here is not harmless: a
+# rejected question is retried and then falls back to the bank, so an
+# over-broad pattern quietly costs every user the same six banked questions.
+#
+# Excluded on purpose:
+#   "portfolio" — the customer's own holdings, not a product. "Your portfolio
+#     drops sharply over a bad month" is the banked risk question.
+#   bare "fund"  — the verb. "How would you fund this?" is ordinary English.
+#   "security"   — collides with the SECURITY motivation anchor, which is
+#     literally "wants a safety net".
 FUND_NAME_HINT = re.compile(
-    r"\b(etf|fund|stock|share|bond|portfolio name)\b", re.IGNORECASE,
+    r"\b(etfs?|mutual funds?|index funds?|money market funds?|unit trusts?"
+    r"|stocks?|shares|bonds?)\b",
+    re.IGNORECASE,
 )
 
 
@@ -47,5 +61,9 @@ def copy_problems(*, text: str) -> list[str]:
 
     if PERCENTAGE.search(text):
         problems.append("contains an explicit return figure")
+
+    named = FUND_NAME_HINT.search(text)
+    if named:
+        problems.append(f"names a product type ({named.group(0)!r})")
 
     return problems

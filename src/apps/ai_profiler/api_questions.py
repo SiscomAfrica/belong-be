@@ -6,15 +6,10 @@ from ninja import Router
 
 from apps.ai_profiler.schemas import AnswerIn, NextQuestionOut, SessionQuestionOut
 from apps.ai_profiler.selectors.get_session_questions import (
-    active_questions,
     display_position,
     previous_question,
 )
-from apps.ai_profiler.services.next_question import (
-    BASE_QUESTIONS,
-    MAX_QUESTIONS,
-    next_question,
-)
+from apps.ai_profiler.services.next_question import MAX_QUESTIONS, next_question
 from apps.ai_profiler.services.record_answer import record_answer
 from apps.ai_profiler.services.reopen_question import reopen_question
 
@@ -53,12 +48,23 @@ def previous_question_endpoint(request, question_id: UUID):
 def present(*, question) -> SessionQuestionOut:
     """Shape a stored question for the client. Anchors are never exposed."""
     position = display_position(question=question)
-    answered = len(active_questions(session_id=question.session_id))
 
     return SessionQuestionOut(
         id=question.id,
         position=position,
-        total_expected=BASE_QUESTIONS if answered <= BASE_QUESTIONS else MAX_QUESTIONS,
+        # Always the cap, never BASE_QUESTIONS.
+        #
+        # This used to report 4 until a fifth question existed and then switch
+        # to 5, so the counter read "Question 4 of 4" and then "Question 5 of
+        # 5" — the total moving under the user, which reads as the app having
+        # changed its mind about how long this takes.
+        #
+        # With six behaviours and coverage needing one primary or two
+        # secondary readings, the first four questions each only cover their
+        # own primary; a fifth is always required. Announcing 5 and
+        # occasionally finishing at 4 is a promise kept early, which is the
+        # right way round.
+        total_expected=MAX_QUESTIONS,
         prompt=question.prompt,
         subtitle=question.subtitle,
         allows_multiple=question.primary_behaviour == "motivation",

@@ -14,7 +14,10 @@ class QuestionOptionOut(Schema):
 class SessionQuestionOut(Schema):
     id: UUID = Field(description="Question identifier, used when answering")
     position: int = Field(description="1-indexed position in the session")
-    total_expected: int = Field(description="Questions expected in total (4 or 5)")
+    total_expected: int = Field(
+        description="Questions the session will ask at most; fixed for the "
+        "whole session so the counter never moves under the user.",
+    )
     prompt: str = Field(description="The question text")
     subtitle: str = Field(description="Supporting line beneath the question")
     allows_multiple: bool = Field(description="Whether more than one option may be picked")

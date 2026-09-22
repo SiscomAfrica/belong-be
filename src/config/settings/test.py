@@ -42,3 +42,13 @@ AWS_SECRET_ACCESS_KEY = "test-secret"  # noqa: S105
 AWS_S3_ENDPOINT_URL = "https://test.r2.cloudflarestorage.com"
 PUBLIC_MEDIA_BUCKET = "belong-media-test"
 PUBLIC_MEDIA_URL = "https://media.test.invalid"
+
+# Pooling off for tests.
+#
+# base.py attaches a psycopg connection pool (min_size 2) to any PostgreSQL
+# connection. Under the test runner that pool opens connections to a database
+# the runner has not created yet, and every test then fails setup with
+# PoolTimeout rather than anything that names the cause. Pooling buys nothing
+# in a single-threaded test process.
+if "OPTIONS" in DATABASES["default"]:  # noqa: F405
+    DATABASES["default"]["OPTIONS"].pop("pool", None)  # noqa: F405

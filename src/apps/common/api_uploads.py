@@ -22,6 +22,7 @@ def presigned_upload(request, payload: PresignedUploadIn):  # noqa: ANN001, ANN2
         folder=payload.folder,
         filename=payload.filename,
         content_type=payload.content_type,
+        is_staff=bool(getattr(request.auth, "is_staff", False)),
     )
 
 

@@ -50,6 +50,13 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.wishlist.tasks.check_wishlist_yield_changes",
         "schedule": crontab(hour=10, minute=0),
     },
+    # Keeps the pre-generated question pool topped up so the profiler never
+    # puts an LLM round-trip between tapping Continue and seeing the next
+    # question. Frequent and cheap: it generates only the shortfall.
+    "refill-question-pool": {
+        "task": "apps.ai_profiler.tasks.refill_question_pool",
+        "schedule": 300,
+    },
     "generate-monthly-statements": {
         "task": "apps.compliance.tasks.generate_monthly_statements",
         "schedule": crontab(day_of_month=1, hour=2, minute=0),

@@ -25,6 +25,13 @@ dependencies = [
     "weasyprint>=62.0",
     "Pillow>=10.0",
     "exponent-server-sdk>=2.1",
+    # Phone and country validation for onboarding/KYC. phonenumbers carries
+    # Google's libphonenumber metadata, which is what distinguishes a Kenyan
+    # mobile line (reachable by OTP and M-Pesa) from a landline that merely
+    # parses. pycountry is the ISO 3166 authority so the nationality list
+    # cannot drift as countries change.
+    "phonenumbers>=9.0",
+    "pycountry>=24.0",
 ]
 
 [project.optional-dependencies]

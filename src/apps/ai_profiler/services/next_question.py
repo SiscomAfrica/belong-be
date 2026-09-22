@@ -17,6 +17,7 @@ from apps.ai_profiler.selectors.get_session_questions import (
 from apps.ai_profiler.selectors.get_session_signals import get_session_signals
 from apps.ai_profiler.services.assess_coverage import next_behaviour_to_probe
 from apps.ai_profiler.services.generate_question import generate_question
+from apps.ai_profiler.services.pooled_payload import pooled_payload
 
 logger = logging.getLogger(__name__)
 
@@ -41,17 +42,22 @@ def next_question(*, session_id: UUID, user_id: UUID) -> SessionQuestion | None:
     if behaviour is None:
         return None
 
-    try:
-        generated = generate_question(
-            behaviour=behaviour,
-            asked=[{"question": q.prompt} for q in asked],
-        )
-    except LookupError:
-        # Nothing generated and nothing banked for this behaviour. Better to
-        # score with it imputed — and say so on the profile — than to hold the
-        # user in onboarding with no question we can actually ask.
-        logger.exception("No question available for %s; leaving it unmeasured", behaviour)
-        return None
+    generated = pooled_payload(behaviour=behaviour)
+
+    if generated is None:
+        # Pool was dry. Generating here costs the user an LLM round-trip, so
+        # it is the exception, not the design — refill_question_pool keeps
+        # this branch cold.
+        try:
+            generated = generate_question(
+                behaviour=behaviour,
+                asked=[{"question": q.prompt} for q in asked],
+            )
+        except LookupError:
+            # Nothing pooled, generated or banked. Better to score it imputed
+            # — and say so on the profile — than hold the user in onboarding.
+            logger.exception("No question for %s; leaving it unmeasured", behaviour)
+            return None
 
     return SessionQuestion.objects.create(
         session=session,

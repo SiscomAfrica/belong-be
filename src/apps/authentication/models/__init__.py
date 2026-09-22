@@ -1,3 +1,3 @@
-from apps.authentication.models.otp import OTP
+from apps.authentication.models.otp import OTP, OTPChannel, OTPPurpose
 
-__all__ = ["OTP"]
+__all__ = ["OTP", "OTPChannel", "OTPPurpose"]
