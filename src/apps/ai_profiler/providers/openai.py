@@ -4,6 +4,7 @@ from apps.ai_profiler.providers.openai_compatible import OpenAICompatibleProvide
 
 
 class OpenAIProvider(OpenAICompatibleProvider):
+    api_key_setting = "OPENAI_API_KEY"
     API_URL = "https://api.openai.com/v1/chat/completions"
     API_KEY_SETTING = "OPENAI_API_KEY"
     MODEL_SETTING = "OPENAI_MODEL"

@@ -11,6 +11,7 @@ DEFAULT_MODEL = "claude-sonnet-5"
 
 
 class ClaudeProvider(LLMProvider):
+    api_key_setting = "ANTHROPIC_API_KEY"
     API_URL = "https://api.anthropic.com/v1/messages"
     API_VERSION = "2023-06-01"
 

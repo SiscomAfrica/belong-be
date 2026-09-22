@@ -20,6 +20,26 @@ def generate_question(*, behaviour: str, asked: list[dict] | None = None) -> dic
     caller always receives something usable — onboarding never stalls on a
     generation failure, and a fallback grades identically to a generated one.
     """
+    try:
+        provider = get_llm_provider()
+    except Exception:
+        # get_llm_provider raises on an unrecognised LLM_PROVIDER value, which
+        # would otherwise 500 the endpoint over a typo in an env var. The
+        # questionnaire can run perfectly well without a model.
+        logger.exception("Could not build an LLM provider; serving banked questions")
+        return _fallback(behaviour=behaviour)
+
+    if not provider.is_configured():
+        # No credential, so every attempt can only 401. Skipping straight to
+        # the bank saves three doomed round-trips — about 1.5s the user was
+        # paying per question for a call that never had a chance.
+        logger.warning(
+            "LLM provider %s has no API key; serving banked questions. "
+            "Run `manage.py check_llm` to confirm.",
+            type(provider).__name__,
+        )
+        return _fallback(behaviour=behaviour)
+
     schema = question_schema(behaviour=behaviour)
     prompt = build_generation_prompt(behaviour=behaviour, asked=asked or [])
     retries = getattr(settings, "LLM_GENERATION_RETRIES", 2)
@@ -27,7 +47,7 @@ def generate_question(*, behaviour: str, asked: list[dict] | None = None) -> dic
 
     for attempt in range(retries + 1):
         try:
-            candidate = get_llm_provider().complete_structured(
+            candidate = provider.complete_structured(
                 messages=[{"role": "user", "content": prompt}],
                 system_prompt=_SYSTEM_PROMPT,
                 schema=schema,

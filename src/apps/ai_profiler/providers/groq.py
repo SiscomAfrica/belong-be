@@ -4,6 +4,7 @@ from apps.ai_profiler.providers.openai_compatible import OpenAICompatibleProvide
 
 
 class GroqProvider(OpenAICompatibleProvider):
+    api_key_setting = "GROQ_API_KEY"
     API_URL = "https://api.groq.com/openai/v1/chat/completions"
     API_KEY_SETTING = "GROQ_API_KEY"
     MODEL_SETTING = "GROQ_MODEL"
