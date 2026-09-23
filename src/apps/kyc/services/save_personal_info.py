@@ -28,6 +28,7 @@ FIELDS = (
 def save_personal_info(
     *,
     user_id: UUID,
+    partial: bool = True,
     first_name: str = "",
     last_name: str = "",
     date_of_birth: date | None = None,
@@ -57,6 +58,11 @@ def save_personal_info(
     # Validated here rather than in the schema because the ID number's format
     # depends on `document_type`, which lives on the submission — the payload
     # never carries it. Raises with every field problem at once.
+    #
+    # Partial by default: the form spans three screens and each saves only what
+    # it collected. A screen that does not hold a field sends nothing for it
+    # and nothing is written, instead of the blank it would otherwise overwrite
+    # the stored answer with. Completeness is checked once, at submit_for_review.
     cleaned = validate_personal_info(
         data={
             "first_name": first_name,
@@ -74,10 +80,16 @@ def save_personal_info(
             "kin_email": kin_email,
         },
         document_type=submission.document_type,
+        partial=partial,
     )
 
-    for field in FIELDS:
+    # Only what came back cleaned: in partial mode the unsupplied fields are
+    # absent from the dict entirely, which is what keeps them untouched.
+    written = [field for field in FIELDS if field in cleaned]
+    for field in written:
         setattr(submission, field, cleaned[field])
 
-    submission.save(update_fields=[*FIELDS, "status", "updated_at"])
+    # Narrowed to what was written, so a concurrent save of another screen
+    # cannot be undone by this one rewriting its columns from a stale read.
+    submission.save(update_fields=[*written, "status", "updated_at"])
     return KYCSubmission.objects.prefetch_related("documents").get(pk=submission.pk)
