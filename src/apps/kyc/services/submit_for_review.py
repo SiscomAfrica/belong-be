@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from apps.kyc.exceptions import KYCInvalidStateError, KYCNotFoundError
 from apps.kyc.models import KYCStatus, KYCSubmission
-from apps.kyc.services.save_personal_info import FIELDS
+from apps.kyc.services.personal_info_checks import FIELDS
 from apps.kyc.services.validate_personal_info import validate_personal_info
 
 

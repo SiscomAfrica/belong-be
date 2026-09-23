@@ -23,6 +23,25 @@ from apps.kyc.services.validate_contact import validate_email
 # update they cannot install.
 _LEGACY_UNKNOWN_NATIONALITY = "OTHER"
 
+# The fields this endpoint owns, in the order a reviewer reads them. Kept
+# beside the checks so a field cannot be added to one and forgotten in the
+# other.
+FIELDS = (
+    "first_name",
+    "last_name",
+    "date_of_birth",
+    "nationality",
+    "id_number",
+    "kra_pin",
+    "city",
+    "address",
+    "employment_status",
+    "income_source",
+    "kin_name",
+    "kin_phone",
+    "kin_email",
+)
+
 
 def checks(*, document_type: str) -> dict[str, Any]:
     """One callable per field. `document_type` is closed over because the ID

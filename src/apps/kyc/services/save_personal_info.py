@@ -4,25 +4,9 @@ from datetime import date
 from uuid import UUID
 
 from apps.kyc.exceptions import KYCInvalidStateError
-from apps.kyc.models import KYCStatus, KYCSubmission
+from apps.kyc.models import DocumentType, KYCStatus, KYCSubmission
+from apps.kyc.services.personal_info_checks import FIELDS
 from apps.kyc.services.validate_personal_info import validate_personal_info
-
-# The fields this endpoint owns, in the order a reviewer reads them.
-FIELDS = (
-    "first_name",
-    "last_name",
-    "date_of_birth",
-    "nationality",
-    "id_number",
-    "kra_pin",
-    "city",
-    "address",
-    "employment_status",
-    "income_source",
-    "kin_name",
-    "kin_phone",
-    "kin_email",
-)
 
 
 def save_personal_info(
@@ -47,6 +31,20 @@ def save_personal_info(
         user_id=user_id,
         defaults={"status": KYCStatus.PENDING},
     )
+
+    # The ID number is collected on step 1, but the document it came from is
+    # not chosen until step 2 — so document_type is still "" when the number
+    # first arrives, and validate_document_number has no rule to check it
+    # against ("Unknown document type ''").
+    #
+    # Assume the national ID, which is what the app itself defaults to and
+    # what nearly every Kenyan user will pick. start_kyc overwrites this the
+    # moment they choose, and submit_for_review re-checks the stored number
+    # against whatever they settled on — so guessing here can delay a
+    # mismatch, never hide one.
+    provisional_document_type = not submission.document_type
+    if provisional_document_type:
+        submission.document_type = DocumentType.NATIONAL_ID
 
     allowed = (KYCStatus.PENDING, KYCStatus.NOT_STARTED, KYCStatus.REJECTED)
     if submission.status not in allowed:
@@ -89,7 +87,13 @@ def save_personal_info(
     for field in written:
         setattr(submission, field, cleaned[field])
 
+    # document_type is set above rather than validated into `cleaned`, so it
+    # belongs in update_fields but never in the loop.
+    changed = [*written, "status", "updated_at"]
+    if provisional_document_type:
+        changed.append("document_type")
+
     # Narrowed to what was written, so a concurrent save of another screen
     # cannot be undone by this one rewriting its columns from a stale read.
-    submission.save(update_fields=[*written, "status", "updated_at"])
+    submission.save(update_fields=changed)
     return KYCSubmission.objects.prefetch_related("documents").get(pk=submission.pk)

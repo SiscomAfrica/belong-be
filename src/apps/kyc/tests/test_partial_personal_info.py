@@ -98,3 +98,31 @@ def test_a_complete_record_submits(user: User) -> None:
 
     assert submission.status == KYCStatus.MANUAL_REVIEW
     assert submission.submitted_at is not None
+
+
+def test_an_id_number_saves_before_the_document_type_is_chosen() -> None:
+    """Step 1 asks for the ID number; step 2 is where the document it came
+    from is picked. Until then document_type is "", which left
+    validate_document_number with no rule and the user staring at
+    "Unknown document type ''" under a number that was perfectly fine.
+    """
+    fresh = User.objects.create(
+        phone="+254700000010", username="kycu2", referral_code="KYCUSER02",
+    )
+
+    submission = save_personal_info(user_id=fresh.id, id_number="12345678")
+
+    assert submission.id_number == "12345678"
+    assert submission.document_type == "NATIONAL_ID"
+
+
+def test_choosing_a_document_later_still_wins() -> None:
+    """The assumed national ID is provisional: start_kyc overwrites it."""
+    fresh = User.objects.create(
+        phone="+254700000011", username="kycu3", referral_code="KYCUSER03",
+    )
+    save_personal_info(user_id=fresh.id, id_number="12345678")
+
+    started = start_kyc(user_id=fresh.id, document_type="PASSPORT")
+
+    assert started.document_type == "PASSPORT"
