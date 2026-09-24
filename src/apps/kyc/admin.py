@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 
 from apps.kyc.models import KYCDocument, KYCStatus, KYCSubmission, KYCWebhookLog
+from apps.kyc.services.apply_kyc_decision import apply_kyc_decision
 
 
 class KYCDocumentInline(admin.TabularInline):
@@ -36,15 +37,27 @@ class KYCSubmissionAdmin(admin.ModelAdmin):
 
     @admin.action(description="Approve selected KYC submissions")
     def approve_kyc(self, request, queryset):  # noqa: ANN001, ANN201
-        reviewable = [KYCStatus.PENDING, KYCStatus.MANUAL_REVIEW]
-        count = queryset.filter(status__in=reviewable).update(status=KYCStatus.VERIFIED)
+        """One at a time, through the service.
+
+        This was a queryset update, which writes the column and nothing else —
+        no audit entry, no notification, and crucially no activation of the
+        investments waiting on the verification. Approving in bulk is not
+        worth a member's paid-for investment staying stuck.
+        """
+        count = self._decide(queryset, verified=True)
         self.message_user(request, f"{count} submission(s) approved.")
 
     @admin.action(description="Reject selected KYC submissions")
     def reject_kyc(self, request, queryset):  # noqa: ANN001, ANN201
-        reviewable = [KYCStatus.PENDING, KYCStatus.MANUAL_REVIEW]
-        count = queryset.filter(status__in=reviewable).update(status=KYCStatus.REJECTED)
+        count = self._decide(queryset, verified=False)
         self.message_user(request, f"{count} submission(s) rejected.")
+
+    def _decide(self, queryset, *, verified: bool) -> int:  # noqa: ANN001
+        reviewable = [KYCStatus.PENDING, KYCStatus.MANUAL_REVIEW]
+        submissions = list(queryset.filter(status__in=reviewable))
+        for submission in submissions:
+            apply_kyc_decision(submission=submission, verified=verified)
+        return len(submissions)
 
 
 @admin.register(KYCDocument)
