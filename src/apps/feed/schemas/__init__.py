@@ -1,10 +1,15 @@
-from apps.feed.schemas.input import FeedPostCreateIn, FeedPostUpdateIn
+from apps.feed.schemas.input import (
+    FeedPostCreateIn,
+    FeedPostUpdateIn,
+    PostReportIn,
+)
 from apps.feed.schemas.output import (
     FeedInvestmentOut,
     FeedListOut,
     FeedPostOut,
     FeedUserOut,
     LikeToggleOut,
+    PostReportOut,
 )
 
 __all__ = [
@@ -15,4 +20,6 @@ __all__ = [
     "FeedPostUpdateIn",
     "FeedUserOut",
     "LikeToggleOut",
+    "PostReportIn",
+    "PostReportOut",
 ]

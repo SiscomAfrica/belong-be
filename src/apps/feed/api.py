@@ -10,6 +10,8 @@ from apps.feed.schemas import (
     FeedPostOut,
     FeedPostUpdateIn,
     LikeToggleOut,
+    PostReportIn,
+    PostReportOut,
 )
 from apps.feed.selectors import (
     list_feed_posts,
@@ -21,6 +23,7 @@ from apps.feed.services import (
     toggle_like,
     update_feed_post,
 )
+from apps.feed.services.report_post import report_post
 
 feed_router = Router(tags=["feed"])
 
@@ -57,6 +60,17 @@ def like(request, post_id: UUID):  # noqa: ANN001, ANN201
     """Toggle like on a feed post. Returns current liked state."""
     liked = toggle_like(post_id=post_id, user_id=request.auth.id)
     return {"liked": liked}
+
+
+@feed_router.post("/posts/{post_id}/report", response={201: PostReportOut})
+def report(request, post_id: UUID, payload: PostReportIn):  # noqa: ANN001, ANN201
+    """Flag a post for moderation. Reporting the same post twice is a no-op."""
+    return 201, report_post(
+        post_id=post_id,
+        user_id=request.auth.id,
+        reason=payload.reason,
+        detail=payload.detail,
+    )
 
 
 @feed_router.patch("/posts/{post_id}", response=FeedPostOut)

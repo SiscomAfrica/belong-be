@@ -20,7 +20,11 @@ def create_feed_post(
         user_comment=user_comment,
         is_public=is_public,
     )
-    return (
+    fresh = (
         FeedPost.objects.select_related("user", "investment__fund")
         .get(pk=post.pk)
     )
+    # Theirs, and new — so editable, whatever the window is set to.
+    fresh.is_mine = True
+    fresh.editable = True
+    return fresh

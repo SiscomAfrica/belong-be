@@ -33,11 +33,27 @@ class FeedPostOut(Schema):
     is_public: bool = Field(description="Whether visible to all users")
     likes_count: int = Field(description="Total number of likes")
     is_liked: bool = Field(description="Whether the requesting user liked this post")
+    is_mine: bool = Field(description="Whether the requesting user wrote this post")
+    can_edit: bool = Field(
+        description=(
+            "Whether the requesting user may still edit it. False once the "
+            "admin-configured edit window has passed. Deleting your own post "
+            "is not time-limited."
+        ),
+    )
     created_at: datetime = Field(description="Post creation timestamp")
 
     @staticmethod
     def resolve_is_liked(obj) -> bool:  # noqa: ANN001
         return getattr(obj, "is_liked", False)
+
+    @staticmethod
+    def resolve_is_mine(obj) -> bool:  # noqa: ANN001
+        return getattr(obj, "is_mine", False)
+
+    @staticmethod
+    def resolve_can_edit(obj) -> bool:  # noqa: ANN001
+        return getattr(obj, "editable", False)
 
 
 class FeedListOut(Schema):
@@ -47,3 +63,10 @@ class FeedListOut(Schema):
 
 class LikeToggleOut(Schema):
     liked: bool = Field(description="True if the post is now liked, false if unliked")
+
+
+class PostReportOut(Schema):
+    id: UUID = Field(description="Report identifier")
+    reason: str = Field(description="Why the post was reported")
+    status: str = Field(description="PENDING | ACTIONED | DISMISSED")
+    created_at: datetime = Field(description="When the report was filed")

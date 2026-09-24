@@ -16,3 +16,8 @@ class FeedPostCreateIn(Schema):
 class FeedPostUpdateIn(Schema):
     user_comment: str | None = Field(default=None, max_length=500, description="Updated user comment")
     is_public: bool | None = Field(default=None, description="Updated visibility setting")
+
+
+class PostReportIn(Schema):
+    reason: str = Field(description="SPAM | MISLEADING | ABUSE | PRIVACY | OTHER")
+    detail: str = Field(default="", max_length=500, description="Optional free-text context")
