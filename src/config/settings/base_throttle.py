@@ -19,6 +19,18 @@ CACHES = {
     },
 }
 
+# How many reverse proxies sit in front of the app.
+#
+# Without this, django-ninja trusts the entire X-Forwarded-For chain as the
+# throttle key. nginx appends the real address to whatever the client sent
+# ($proxy_add_x_forwarded_for), so a client supplying its own header gets a
+# fresh bucket for every value it invents — and the same throttle class
+# guards OTP sending, where each call spends real money on an SMS.
+#
+# Set to the number of proxies and only their appended address is used, which
+# a client cannot influence. One nginx in front means 1.
+NINJA_NUM_PROXIES = env.int("NINJA_NUM_PROXIES", default=1)
+
 # Request rate limits. Auth is the one that matters most: OTP send is
 # unauthenticated and costs real money per call via Tilil, which makes it the
 # cheapest endpoint in the system to abuse.
@@ -37,3 +49,11 @@ THROTTLE_PAYMENTS = env("THROTTLE_PAYMENTS", default="30/m")
 # Sliding window, not a fixed one — with a fixed reset a user could start 6
 # just before the boundary and 6 just after.
 THROTTLE_PAYMENT_INITIATION = env("THROTTLE_PAYMENT_INITIATION", default="6/12h")
+
+# Public catalogue reads — funds, playlists, market tickers. These are
+# declared auth=None, so every request counts as anonymous even from a signed-
+# in member, and they all shared the baseline anon bucket. Opening the home
+# screen spends four of them, so roughly twenty-five refreshes exhausted the
+# limit that is also the last line of defence on OTP. Browsing now has its own
+# scope: exhausting it empties the catalogue, never the SMS budget.
+THROTTLE_CATALOGUE = env("THROTTLE_CATALOGUE", default="600/h")

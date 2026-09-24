@@ -18,12 +18,13 @@ from apps.funds.selectors.list_fund_nav import list_fund_nav
 from apps.funds.selectors.list_funds import list_funds
 from apps.funds.selectors.list_trending_funds import list_trending_funds
 from apps.funds.services.calculate_projection import calculate_projection
+from config.throttles import catalogue_throttles
 
-funds_router = Router(tags=["funds"])
+funds_router = Router(tags=["funds"], throttle=catalogue_throttles())
 
 
 @funds_router.get("/", response=FundListOut, auth=None)
-def list_all_funds(  # noqa: ANN001, ANN201
+def list_all_funds(
     request,
     fund_type: str | None = Query(None),
     category: str | None = Query(None),
@@ -41,19 +42,19 @@ def list_all_funds(  # noqa: ANN001, ANN201
 
 
 @funds_router.get("/trending", response=list[FundOut], auth=None)
-def trending(request):  # noqa: ANN001, ANN201
+def trending(request):
     """Return the list of currently trending funds."""
     return list_trending_funds()
 
 
 @funds_router.get("/curated", response=list[FundOut])
-def curated(request):  # noqa: ANN001, ANN201
+def curated(request):
     """Return funds curated for the user's investor type."""
     return list_curated_funds(investor_type=request.auth.investor_type)
 
 
 @funds_router.post("/projection", response=ProjectionOut, auth=None)
-def projection(request, payload: ProjectionIn):  # noqa: ANN001, ANN201
+def projection(request, payload: ProjectionIn):
     """Calculate a hypothetical investment growth projection."""
     return calculate_projection(
         goal=payload.goal,
@@ -65,12 +66,12 @@ def projection(request, payload: ProjectionIn):  # noqa: ANN001, ANN201
 
 
 @funds_router.get("/{fund_id}", response=FundDetailOut, auth=None)
-def fund_detail(request, fund_id: UUID):  # noqa: ANN001, ANN201
+def fund_detail(request, fund_id: UUID):
     """Return detailed information for a single fund."""
     return get_fund(fund_id=fund_id)
 
 
 @funds_router.get("/{fund_id}/nav", response=list[FundNAVOut], auth=None)
-def fund_nav(request, fund_id: UUID, days: int = Query(30)):  # noqa: ANN001, ANN201
+def fund_nav(request, fund_id: UUID, days: int = Query(30)):
     """Return historical NAV data for a fund over the specified day range."""
     return list_fund_nav(fund_id=fund_id, days=days)

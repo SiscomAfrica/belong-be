@@ -25,6 +25,12 @@ class PaymentReadThrottle(AuthRateThrottle):
     scope = "payment_read"
 
 
+class CatalogueThrottle(AnonRateThrottle):
+    """Public catalogue reads, kept clear of the baseline anon bucket."""
+
+    scope = "catalogue"
+
+
 class AuthEndpointThrottle(AnonRateThrottle):
     """Unauthenticated auth endpoints, where each OTP costs a real SMS."""
 
@@ -37,6 +43,15 @@ def payment_initiation_throttles() -> list[BaseThrottle]:
 
 def payment_read_throttles() -> list[BaseThrottle]:
     return [PaymentReadThrottle(settings.THROTTLE_PAYMENTS)]
+
+
+def catalogue_throttles() -> list[BaseThrottle]:
+    """Anonymous browsing gets its own scope; signed-in reads keep the
+    per-user limit, since these routers carry both."""
+    return [
+        CatalogueThrottle(settings.THROTTLE_CATALOGUE),
+        AuthRateThrottle(settings.THROTTLE_USER),
+    ]
 
 
 def auth_endpoint_throttles() -> list[BaseThrottle]:

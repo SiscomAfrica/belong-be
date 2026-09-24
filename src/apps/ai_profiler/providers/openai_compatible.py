@@ -5,6 +5,7 @@ import json
 import httpx
 from django.conf import settings
 
+from apps.ai_profiler.exceptions import ProviderRateLimitedError
 from apps.ai_profiler.providers.base import LLMProvider
 
 
@@ -34,6 +35,11 @@ class OpenAICompatibleProvider(LLMProvider):
         resp = httpx.post(
             self.API_URL, json=payload, headers=self._headers(), timeout=timeout,
         )
+        if resp.status_code == httpx.codes.TOO_MANY_REQUESTS:
+            # Raised as its own type so callers can stop rather than retry.
+            # Honour Retry-After when the provider sends one; it knows when
+            # the window reopens and we do not.
+            raise ProviderRateLimitedError(retry_after=_retry_after(resp))
         resp.raise_for_status()
         return resp.json()
 
@@ -73,3 +79,15 @@ class OpenAICompatibleProvider(LLMProvider):
             timeout=timeout,
         )
         return json.loads(data["choices"][0]["message"]["content"])
+
+
+def _retry_after(resp: httpx.Response) -> int | None:
+    raw = resp.headers.get("Retry-After") or resp.headers.get("retry-after")
+    if not raw:
+        return None
+    try:
+        return int(float(raw))
+    except ValueError:
+        # Retry-After may be an HTTP date rather than seconds. Falling back to
+        # the caller's own cooldown is better than guessing at a parse.
+        return None

@@ -4,10 +4,12 @@ import logging
 
 from django.conf import settings
 
+from apps.ai_profiler.exceptions import ProviderRateLimitedError
 from apps.ai_profiler.providers import get_llm_provider
 from apps.ai_profiler.services.fallback_questions import fallback_for
 from apps.ai_profiler.services.question_prompt import build_generation_prompt
 from apps.ai_profiler.services.question_schema import question_schema
+from apps.ai_profiler.services.question_system_prompt import SYSTEM_PROMPT
 from apps.ai_profiler.services.validate_question import validate_question
 
 logger = logging.getLogger(__name__)
@@ -16,9 +18,14 @@ logger = logging.getLogger(__name__)
 def generate_question(*, behaviour: str, asked: list[dict] | None = None) -> dict:
     """Produce one validated question targeting `behaviour`.
 
-    Retries on invalid output, then falls back to the banked question. The
-    caller always receives something usable — onboarding never stalls on a
-    generation failure, and a fallback grades identically to a generated one.
+    Retries on invalid output, then falls back to the banked question, so a
+    generation failure never leaves the caller empty-handed.
+
+    The one thing it does not absorb is a rate limit: that is raised, because
+    the right response is to stop rather than to substitute. Both callers are
+    background work — the pool refill and the check_llm command — so nobody is
+    waiting on this. The request path stopped calling it when next_question
+    was made to serve the bank instead.
     """
     try:
         provider = get_llm_provider()
@@ -49,10 +56,15 @@ def generate_question(*, behaviour: str, asked: list[dict] | None = None) -> dic
         try:
             candidate = provider.complete_structured(
                 messages=[{"role": "user", "content": prompt}],
-                system_prompt=_SYSTEM_PROMPT,
+                system_prompt=SYSTEM_PROMPT,
                 schema=schema,
                 timeout=timeout,
             )
+        except ProviderRateLimitedError:
+            # Not worth a second attempt: the provider has said no for a
+            # while, and two more immediate calls only confirm it.
+            logger.warning("Provider rate limited generating %s", behaviour)
+            raise
         except Exception:
             logger.warning(
                 "Question generation failed for %s (attempt %s)", behaviour, attempt + 1,
@@ -80,27 +92,3 @@ def _fallback(*, behaviour: str) -> dict:
 
     logger.warning("Serving banked question for %s", behaviour)
     return {**banked, "source": "fallback"}
-
-
-_SYSTEM_PROMPT = (
-    "You write onboarding questions for Belong, an investment app in Kenya.\n\n"
-    "Write the way a thoughtful person asks a friend what they want for their "
-    "money — curious, warm, direct, never clinical. Someone answering should "
-    "feel talked to, not assessed. They will never know a scale exists.\n\n"
-    "You are a phrasing engine, not a scorer. You never decide what kind of "
-    "investor someone is. You write one short multiple-choice question and "
-    "declare, for each option, which anchor on our fixed scale that option "
-    "represents.\n\n"
-    "Rules:\n"
-    "- Plain conversational English. No financial jargon.\n"
-    "- The anchor definitions we give you are internal. Never echo their "
-    "wording, and never let their clinical tone leak into what you write.\n"
-    "- Options must be things a real person would say about themselves, out "
-    "loud, in their own words.\n"
-    "- Never promise, imply, or quote a return. Never name a product.\n"
-    "- Never describe any investment as safe, guaranteed, or risk-free.\n"
-    "- Each option must sit at a different anchor, and together they must "
-    "span most of the scale — otherwise the question measures nothing.\n\n"
-    "Sounding human is a requirement, not a preference. A question that "
-    "measures correctly but reads like a form has failed."
-)

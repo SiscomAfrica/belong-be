@@ -100,3 +100,25 @@ def test_rejecting_leaves_investments_alone(
     assert investment.status == InvestmentStatus.PENDING_KYC
     submission.refresh_from_db()
     assert submission.status == KYCStatus.REJECTED
+
+
+def test_the_repair_command_rescues_an_already_verified_member(
+    user: User, fund: Fund, submission: KYCSubmission,
+) -> None:
+    """Deploying the fix does not un-strand anyone on its own.
+
+    apply_kyc_decision only runs when a decision is applied, and these
+    members were approved before it existed — their submission already reads
+    VERIFIED, so nothing re-runs. The command is how they get their units.
+    """
+    from django.core.management import call_command
+
+    investment = pending_kyc_investment(user, fund)
+    paid(investment)
+    # Approved the old way: the column written, nothing else.
+    KYCSubmission.objects.filter(pk=submission.pk).update(status=KYCStatus.VERIFIED)
+
+    call_command("activate_stuck_investments")
+
+    investment.refresh_from_db()
+    assert investment.status == InvestmentStatus.CONFIRMED

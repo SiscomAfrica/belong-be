@@ -8,6 +8,12 @@ DEBUG = False
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
+# Docker's health check curls http://localhost:8000/api/health/ from inside
+# the container, where there is no TLS to redirect to. Without this exemption
+# it gets a 301, curl -f treats that as success, and the check passes whether
+# or not the app can reach the database — which is the one thing it exists to
+# report. Django matches these against the path with no leading slash.
+SECURE_REDIRECT_EXEMPT = [r"^api/health/$"]
 SECURE_HSTS_SECONDS = 31_536_000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True

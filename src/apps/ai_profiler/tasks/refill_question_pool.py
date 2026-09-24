@@ -5,16 +5,22 @@ import logging
 from celery import shared_task
 from django.conf import settings
 
+from apps.ai_profiler.exceptions import ProviderRateLimitedError
 from apps.ai_profiler.models import PooledQuestion
 from apps.ai_profiler.rubric import BEHAVIOUR_KEYS
 from apps.ai_profiler.selectors.claim_pooled_question import available_counts
 from apps.ai_profiler.services.generate_question import generate_question
+from apps.ai_profiler.services.provider_cooldown import (
+    provider_is_cooling_down,
+    start_provider_cooldown,
+)
 
 logger = logging.getLogger(__name__)
 
 # Enough that a burst of sign-ups cannot drain a behaviour between refills,
 # small enough that questions do not go stale sitting in the pool.
 TARGET_PER_BEHAVIOUR = 5
+
 
 
 @shared_task(
@@ -34,6 +40,10 @@ def refill_question_pool(self, target: int | None = None) -> int:
     A generation failure for one behaviour must not abandon the rest — each is
     independent, and a half-full pool still serves instantly.
     """
+    if provider_is_cooling_down():
+        logger.info("Question pool refill skipped: provider still rate limited")
+        return 0
+
     wanted = target or getattr(
         settings, "QUESTION_POOL_TARGET", TARGET_PER_BEHAVIOUR,
     )
@@ -43,16 +53,30 @@ def refill_question_pool(self, target: int | None = None) -> int:
     for behaviour in BEHAVIOUR_KEYS:
         shortfall = wanted - counts.get(behaviour, 0)
         for _ in range(max(shortfall, 0)):
-            if _store_one(behaviour=behaviour):
-                created += 1
+            try:
+                if _store_one(behaviour=behaviour):
+                    created += 1
+            except ProviderRateLimitedError as exc:
+                # Abandon the whole run, not just this behaviour. The limit is
+                # on the account, so the remaining behaviours would only meet
+                # the same refusal.
+                start_provider_cooldown(seconds=exc.retry_after)
+                logger.warning(
+                    "Question pool refill stopped: provider rate limited "
+                    "(%s created before stopping)", created,
+                )
+                return created
 
     logger.info("Question pool refilled: %s created", created)
     return created
 
 
 def _store_one(*, behaviour: str) -> bool:
+    """Returns whether a question was banked. Lets a rate limit propagate."""
     try:
         generated = generate_question(behaviour=behaviour, asked=[])
+    except ProviderRateLimitedError:
+        raise
     except Exception:
         logger.exception("Pool generation failed for %s", behaviour)
         return False

@@ -5,8 +5,11 @@ from ninja import Router
 from apps.funds.schemas import PlaylistListOut, PlaylistOut
 from apps.funds.selectors.get_playlist import get_playlist
 from apps.funds.selectors.list_playlists import list_playlists
+from config.throttles import catalogue_throttles
 
-playlists_router = Router(tags=["playlists"], auth=None)
+playlists_router = Router(
+    tags=["playlists"], auth=None, throttle=catalogue_throttles(),
+)
 
 
 @playlists_router.get("/", response=PlaylistListOut)
